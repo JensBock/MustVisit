@@ -1,0 +1,28 @@
+{
+  "name": "mustvisit",
+  "version": "1.0.0",
+  "description": "Must visit app",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JensBock/MustVisit.git"
+  },
+  "keywords": [
+    "Mean",
+    "stack",
+    "MustVisit"
+  ],
+  "author": "Jens Bockstal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JensBock/MustVisit/issues"
+  },
+  "homepage": "https://github.com/JensBock/MustVisit#readme",
+  "dependencies": {
+    "express": "^4.16.1",
+    "mongoose": "^4.11.14"
+  }
+}
