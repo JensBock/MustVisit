@@ -8,6 +8,14 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { HomeComponent } from './components/home/home.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { RegisterComponent } from './components/register/register.component';
+import { AuthService } from './services/auth.service';
+import { LocationService } from './services/location.service';
+import { LoginComponent } from './components/login/login.component';
+import { ProfileComponent } from './components/profile/profile.component';
+import { FlashMessagesModule } from 'angular2-flash-messages';
+import { AuthGuard } from './guards/auth.guard';
+import { NotAuthGuard } from './guards/notAuth.guard';
+import { LocationsComponent } from './components/locations/locations.component';
 
 @NgModule({
   declarations: [
@@ -15,15 +23,19 @@ import { RegisterComponent } from './components/register/register.component';
     NavbarComponent,
     HomeComponent,
     DashboardComponent,
-    RegisterComponent
+    RegisterComponent,
+    LoginComponent,
+    ProfileComponent,
+    LocationsComponent
   ],
   imports: [
     BrowserModule,
     HttpModule,
     ReactiveFormsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FlashMessagesModule
   ],
-  providers: [],
+  providers: [AuthService, AuthGuard, NotAuthGuard, LocationService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

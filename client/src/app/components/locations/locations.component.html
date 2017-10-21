@@ -1,0 +1,54 @@
+<h1 class="page-header"></h1>
+<div class="row show-hide-message" *ngIf="message && newLocation">
+	<div [ngClass]="messageClass">
+		{{message}}
+	</div>
+</div>
+
+<button type="button" name="button" class="btn btn-warning" *ngIf="!newLocation" (click)="newLocationForm()" >Create new location</button>
+
+<form [formGroup]="form" name="locationForm" (submit)="onLocationSubmit()" *ngIf="newLocation">
+	<div class="form-group">
+		<label for="title">Title</label>
+		<div [ngClass]="{'has-success': form.controls.title.valid, 'has-error': form.controls.title.dirty && form.controls.title.errors}">
+			<input type="text" name="title" class="form-control" placeholder="Location title" autocomplete="off" formControlName="title"/>
+			<ul class="help-block">
+				<li *ngIf="form.controls.title.dirty && form.controls.title.errors?.required">This field is required.</li>
+				<li *ngIf="(form.controls.title.dirty && form.controls.title.errors?.maxlength) || (form.controls.title.dirty && form.controls.title.errors?.minlength)">Max length: 50, min length: 5</li>
+				<li *ngIf="form.controls.title.dirty && form.controls.title.errors?.alphaNumericValidation">Must be letter or number</li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for="body">Body</label>
+		<div [ngClass]="{'has-success': form.controls.body.valid, 'has-error': form.controls.body.dirty && form.controls.body.errors}">
+			<textarea name="body" rows="8" cols="80" class="form-control" placeholder="Location body" autocomplete="off" formControlName="body"></textarea>
+			<ul class="help-block">
+				<li *ngIf="form.controls.body.dirty && form.controls.body.errors?.required">This field is required.</li>
+				<li *ngIf="(form.controls.body.dirty && form.controls.body.errors?.maxlength) || (form.controls.body.dirty && form.controls.body.errors?.minlength)">Max length: 500, min length: 5</li>
+			</ul>
+		</div>
+	</div>
+	<button [disabled]="processing" type="button" name="button" (click)="goBack()" class="btn btn-warning">Go Back</button>
+
+	<button [disabled]="processing || !form.valid" type="submit" name="button" class="btn btn-success">Submit</button>
+
+</form>
+
+<div *ngIf="!newLocation" >
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<h3 class="panel-title">
+				Location title
+			</h3>
+		</div>
+		<div class="panel-body">
+			 Ipsum is de standaard proeftekst in deze bedrijfstak sinds de 16e eeuw, toen een onbekende drukker een zethaak met letters nam en ze door elkaar husselde om een font-catalogus te maken. Het heeft niet alleen vijf eeuwen overleefd maar is ook, vrijwel onveranderd, overgenomen in elektronische letterzetting. Het is in de jaren '60 populair geworden met de introductie van Letraset vellen met Lorem Ipsum passages en meer recentelijk door desktop publishing
+		</div>
+		<div class="panel-footer">
+			<a href="#"><button type="button" name="button" class="btn btn-sm btn-info">Edit</button></a>
+			<a href="#"><button type="button" name="button" class="btn btn-sm btn-danger">Delete</button></a>
+		</div>
+	</div>
+</div>
