@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpModule  } from '@angular/http';
 import { AppRoutingModule } from './app.routing.module';
@@ -16,6 +17,8 @@ import { FlashMessagesModule } from 'angular2-flash-messages';
 import { AuthGuard } from './guards/auth.guard';
 import { NotAuthGuard } from './guards/notAuth.guard';
 import { LocationsComponent } from './components/locations/locations.component';
+import { EditLocationComponent } from './components/locations/edit-location/edit-location.component';
+import { DeleteLocationComponent } from './components/locations/delete-location/delete-location.component';
 
 @NgModule({
   declarations: [
@@ -26,10 +29,13 @@ import { LocationsComponent } from './components/locations/locations.component';
     RegisterComponent,
     LoginComponent,
     ProfileComponent,
-    LocationsComponent
+    LocationsComponent,
+    EditLocationComponent,
+    DeleteLocationComponent
   ],
   imports: [
     BrowserModule,
+    FormsModule,
     HttpModule,
     ReactiveFormsModule,
     AppRoutingModule,

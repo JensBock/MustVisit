@@ -16,6 +16,7 @@ export class LocationsComponent implements OnInit {
   form;
   processing = false;
   username;
+  locations;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -83,6 +84,7 @@ export class LocationsComponent implements OnInit {
       } else {
         this.messageClass = 'alert alert-success';
         this.message = data.message;
+        this.getAllLocations();
         setTimeout(() =>{
           this.newLocation = false;
           this.processing = false;
@@ -98,10 +100,16 @@ export class LocationsComponent implements OnInit {
     window.location.reload();
   }
 
+  getAllLocations(){
+    this.locationService.getAllLocations().subscribe(data => {
+      this.locations = data.locations;
+    });
+  }
+
   ngOnInit() {
     this.authService.getProfile().subscribe( profile => {
       this.username = profile.user.username;
-    })
-  }
-
+    });
+    this.getAllLocations();
+    }
 }
