@@ -83,7 +83,7 @@ let validPassword = (password) => {
 	if(!password){
 		return false;
 	} else {
-		const regExp = new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,35}$/);
+		const regExp = new RegExp(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/);
 		return regExp.test(password);
 	}
 };

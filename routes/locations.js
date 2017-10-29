@@ -18,6 +18,8 @@ module.exports = (router) => {
 					const location = new Location({
 						title: req.body.title,
 						body: req.body.body,
+						lat: req.body.lat,
+    					lng: req.body.lng,
 						createdBy: req.body.createdBy
 					});
 					location.save((err) => {

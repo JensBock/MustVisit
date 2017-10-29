@@ -39,7 +39,7 @@ export class LocationService {
     return this.http.get(this.domain + 'locations/singleLocation/' + id, this.options).map(res => res.json());
   }
 
-    editLocation(location){
+  editLocation(location){
     this.createAuthenticationHeaders();
     return this.http.put(this.domain + 'locations/updateLocation/' ,location, this.options).map(res => res.json());
   }
@@ -48,4 +48,5 @@ export class LocationService {
     this.createAuthenticationHeaders();
     return this.http.delete(this.domain + 'locations/deleteLocation/' + id, this.options).map(res => res.json());
   }
+
 }

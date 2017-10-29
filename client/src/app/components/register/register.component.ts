@@ -9,7 +9,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class RegisterComponent implements OnInit {
 
-  form: FormGroup;
+  form;
   message;
   messageClass;
   processing = false;
@@ -91,7 +91,7 @@ export class RegisterComponent implements OnInit {
   // Function to validate password
   validatePassword(controls) {
     // Create a regular expression
-    const regExp = new RegExp(/^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[\d])(?=.*?[\W]).{8,35}$/);
+    const regExp = new RegExp(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/);
     // Test password against regular expression
     if (regExp.test(controls.value)) {
       return null; // Return as valid password

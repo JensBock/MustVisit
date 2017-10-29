@@ -17,6 +17,8 @@ export class LocationsComponent implements OnInit {
   processing = false;
   username;
   locations;
+  lat: number ;
+  lng: number ;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -72,6 +74,8 @@ export class LocationsComponent implements OnInit {
     const location = {
     title: this.form.get('title').value,
     body: this.form.get('body').value,
+    lat: this.lat,
+    lng: this.lng,
     createdBy: this.username
     }
 
@@ -100,6 +104,42 @@ export class LocationsComponent implements OnInit {
     window.location.reload();
   }
 
+  addLocation() {
+    if (window.navigator && window.navigator.geolocation) {
+        window.navigator.geolocation.getCurrentPosition(
+            position => {
+                    this.lat = position.coords.latitude,
+                    this.lng = position.coords.longitude
+            },
+            error => {
+                switch (error.code) {
+                    case 1:
+                        console.log('Permission Denied');
+                        break;
+                    case 2:
+                        console.log('Position Unavailable');
+                        break;
+                    case 3:
+                        console.log('Timeout');
+                        break;
+                }
+            }
+        );
+    } else { 
+        this.messageClass = 'alert alert-success';
+        this.message = 'Geolocation is not supported by this browser.';
+    }
+  }
+
+  mapClicked($event){
+    if ($event.coords.lat && $event.coords.lng) {
+        this.lat = $event.coords.lat
+        this.lng = $event.coords.lng
+        console.log(this.lat)
+    }
+  }
+
+
   getAllLocations(){
     this.locationService.getAllLocations().subscribe(data => {
       this.locations = data.locations;
@@ -110,6 +150,27 @@ export class LocationsComponent implements OnInit {
     this.authService.getProfile().subscribe( profile => {
       this.username = profile.user.username;
     });
+    if (window.navigator && window.navigator.geolocation) {
+        window.navigator.geolocation.getCurrentPosition(
+            position => {
+                    this.lat = position.coords.latitude,
+                    this.lng = position.coords.longitude
+            },
+            error => {
+                switch (error.code) {
+                    case 1:
+                        console.log('Permission Denied');
+                        break;
+                    case 2:
+                        console.log('Position Unavailable');
+                        break;
+                    case 3:
+                        console.log('Timeout');
+                        break;
+                }
+            }
+        );
+    }
     this.getAllLocations();
     }
 }

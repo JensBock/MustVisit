@@ -57,6 +57,8 @@ const bodyValidator = [
 const locationSchema = new Schema({
 title: {type: String, required: true , validate: titleValidator},
 body: {type: String, required: true , validate: bodyValidator},
+lat: {type: Number},
+lng: {type: Number},
 createdBy: {type: String, required: true},
 createdAt: {type: Date, default: Date.now()}
 

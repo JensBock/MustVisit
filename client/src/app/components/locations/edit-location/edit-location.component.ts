@@ -46,6 +46,40 @@ export class EditLocationComponent implements OnInit {
   	this.locationAng.back()
   	}
 
+    addLocation() {
+    if (window.navigator && window.navigator.geolocation) {
+        window.navigator.geolocation.getCurrentPosition(
+            position => {
+                    this.location.lat = position.coords.latitude,
+                    this.location.lng = position.coords.longitude
+            },
+            error => {
+                switch (error.code) {
+                    case 1:
+                        console.log('Permission Denied');
+                        break;
+                    case 2:
+                        console.log('Position Unavailable');
+                        break;
+                    case 3:
+                        console.log('Timeout');
+                        break;
+                }
+            }
+        );
+    } else { 
+        this.messageClass = 'alert alert-success';
+        this.message = 'Geolocation is not supported by this browser.';
+    }
+  }
+
+  mapClicked($event){
+    if ($event.coords.lat && $event.coords.lng) {
+        this.location.lat = $event.coords.lat
+        this.location.lng = $event.coords.lng
+    }
+  }
+
   	ngOnInit() {
   		this.currentUrl = this.activatedRoute.snapshot.params
   		this.locationService.getSingleLocation(this.currentUrl.id).subscribe(data => {

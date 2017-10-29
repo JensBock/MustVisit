@@ -8,6 +8,7 @@ const authentication = require('./routes/authentication')(router);
 const locations = require('./routes/locations')(router);
 const bodyParser = require('body-parser');
 const cors = require('cors'); // CORS is a node.js package for providing a Connect/Express middleware that can be used to enable CORS with various options.
+const port = process.env.PORT || 8080;
 
 mongoose.Promise = global.Promise;
 mongoose.connect(config.uri,{useMongoClient: true}, (err) => {
@@ -23,7 +24,7 @@ mongoose.connect(config.uri,{useMongoClient: true}, (err) => {
 app.use(cors({ origin: 'http://localhost:4200' })); // Allows cross origin in development only
 app.use(bodyParser.urlencoded({ extended: false }));// parse application/x-www-form-urlencoded
 app.use(bodyParser.json());// parse application/json
-app.use(express.static(__dirname + '/client/dist/'));
+app.use(express.static(__dirname + '/public'));
 app.use('/authentication', authentication);
 app.use('/locations', locations);
 
@@ -32,9 +33,9 @@ app.use('/locations', locations);
 //});
 
 app.get('*', (req,res) => {
-	res.sendFile(path.join(__dirname + '/client/dist/index.html'));
+	res.sendFile(path.join(__dirname + '/public/index.html'));
 });
 
-app.listen(8080, () => {
-	console.log('Listening on port 8080');
+app.listen(port, () => {
+	console.log('Listening on port' + port);
 })

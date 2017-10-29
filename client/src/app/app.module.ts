@@ -20,6 +20,8 @@ import { LocationsComponent } from './components/locations/locations.component';
 import { EditLocationComponent } from './components/locations/edit-location/edit-location.component';
 import { DeleteLocationComponent } from './components/locations/delete-location/delete-location.component';
 
+import { AgmCoreModule } from '@agm/core';
+
 @NgModule({
   declarations: [
     AppComponent,
