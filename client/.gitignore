@@ -43,4 +43,4 @@ Thumbs.db
 
 #env
 .env.json/coverage
-
+.env.json
