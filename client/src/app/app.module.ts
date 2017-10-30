@@ -21,6 +21,7 @@ import { EditLocationComponent } from './components/locations/edit-location/edit
 import { DeleteLocationComponent } from './components/locations/delete-location/delete-location.component';
 
 import { AgmCoreModule } from '@agm/core';
+import { env } from '../environments/env';
 
 @NgModule({
   declarations: [
@@ -41,7 +42,10 @@ import { AgmCoreModule } from '@agm/core';
     HttpModule,
     ReactiveFormsModule,
     AppRoutingModule,
-    FlashMessagesModule
+    FlashMessagesModule,
+    AgmCoreModule.forRoot({
+      apiKey: env.GOOGLE_API_KEY
+    })
   ],
   providers: [AuthService, AuthGuard, NotAuthGuard, LocationService],
   bootstrap: [AppComponent]
