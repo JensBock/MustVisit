@@ -19,9 +19,11 @@ import { NotAuthGuard } from './guards/notAuth.guard';
 import { LocationsComponent } from './components/locations/locations.component';
 import { EditLocationComponent } from './components/locations/edit-location/edit-location.component';
 import { DeleteLocationComponent } from './components/locations/delete-location/delete-location.component';
+import { HoneycombanimComponent } from './components/honeycombanim/honeycombanim.component';
 
 import { AgmCoreModule } from '@agm/core';
 import { env } from '../environments/env';
+
 
 @NgModule({
   declarations: [
@@ -34,7 +36,8 @@ import { env } from '../environments/env';
     ProfileComponent,
     LocationsComponent,
     EditLocationComponent,
-    DeleteLocationComponent
+    DeleteLocationComponent,
+    HoneycombanimComponent
   ],
   imports: [
     BrowserModule,
