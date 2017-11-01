@@ -11,7 +11,6 @@ import { DeleteLocationComponent } from './components/locations/delete-location/
 import { AuthGuard } from './guards/auth.guard';
 import { NotAuthGuard } from './guards/notAuth.guard';
 
-
 const appRoutes: Routes = [
   { path: '', component: HomeComponent},
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard]},
