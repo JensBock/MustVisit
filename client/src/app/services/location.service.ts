@@ -14,6 +14,15 @@ export class LocationService {
   	private http: Http
   ) { }
 
+  createAuthenticationHeadersPicture(){
+    this.authService.loadToken();
+    this.options = new RequestOptions({
+      headers: new Headers({
+        'authorization': this.authService.authToken
+      })
+    })
+  }
+
   createAuthenticationHeaders(){
     this.authService.loadToken();
     this.options = new RequestOptions({
@@ -24,14 +33,30 @@ export class LocationService {
     })
   }
 
+  newPicture(picture) {
+    this.createAuthenticationHeaders();
+    this.options.headers.delete('Content-Type');
+    return this.http.post(this.domain + 'locations/newPicture', picture, this.options).map(res => res.json());
+  }
+
+  getSinglePicture(id){
+    this.createAuthenticationHeaders();
+    return this.http.get(this.domain + 'locations/singlePicture/' + id, this.options).map(res => res.json());
+  }
+
   newLocation(location) {
-  	this.createAuthenticationHeaders();
-  	return this.http.post(this.domain + 'locations/newLocation', location, this.options).map(res => res.json());
+    this.createAuthenticationHeaders();
+    return this.http.post(this.domain + 'locations/newLocation', location, this.options).map(res => res.json());
   }
 
   getAllLocations (){
     this.createAuthenticationHeaders();
     return this.http.get(this.domain + 'locations/allLocations', this.options).map(res => res.json());
+  }
+
+  getAllLocationsAndPicture (){
+    this.createAuthenticationHeaders();
+    return this.http.get(this.domain + 'locations/allLocationsAndPictures', this.options).map(res => res.json());
   }
 
   getSingleLocation(id){

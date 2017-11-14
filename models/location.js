@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 const Schema = mongoose.Schema;
-const bcrypt = require('bcrypt-nodejs');
 
 let titleLengthChecker = (title) => {
 	if(!title){
@@ -59,9 +58,10 @@ title: {type: String, required: true , validate: titleValidator},
 body: {type: String, required: true , validate: bodyValidator},
 lat: {type: Number},
 lng: {type: Number},
+tags: {type: Array},
 createdBy: {type: String, required: true},
-createdAt: {type: Date, default: Date.now()}
-
+createdAt: {type: Date, default: Date.now()},
+picture: { type: Schema.Types.ObjectId, ref: 'Picture' }
 });
 
 module.exports = mongoose.model('Location', locationSchema);

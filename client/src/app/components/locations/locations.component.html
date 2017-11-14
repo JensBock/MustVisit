@@ -1,94 +1,43 @@
 <h1 class="page-header"></h1>
-<div class="row show-hide-message" *ngIf="message && newLocation">
+<div class="row show-hide-message" *ngIf="message">
 	<div [ngClass]="messageClass">
 		{{message}}
 	</div>
 </div>
 
-<button type="button" name="button" class="btn btn-warning" *ngIf="!newLocation" (click)="newLocationForm()" >Create new location</button>
-
-<form [formGroup]="form" name="locationForm" (submit)="onLocationSubmit()" *ngIf="newLocation">
-	<div class="row featurette">
-	<div class="col-md-7">
-	<div class="featurette-heading">
-		<h3 class="panel-title">
-			Add a new location
-		</h3>
-	</div>
-	<div class="form-group">
-		<label for="title">Title</label>
-		<div [ngClass]="{'has-success': form.controls.title.valid, 'has-error': form.controls.title.dirty && form.controls.title.errors}">
-			<input type="text" name="title" class="form-control" placeholder="Location title" autocomplete="off" formControlName="title"/>
-			<ul class="help-block">
-				<li *ngIf="form.controls.title.dirty && form.controls.title.errors?.required">This field is required.</li>
-				<li *ngIf="(form.controls.title.dirty && form.controls.title.errors?.maxlength) || (form.controls.title.dirty && form.controls.title.errors?.minlength)">Max length: 50, min length: 5</li>
-				<li *ngIf="form.controls.title.dirty && form.controls.title.errors?.alphaNumericValidation">Must be letter or number</li>
-			</ul>
-		</div>
-	</div>
-
-	<div class="form-group">
-		<label for="body">Body</label>
-		<div [ngClass]="{'has-success': form.controls.body.valid, 'has-error': form.controls.body.dirty && form.controls.body.errors}">
-			<textarea name="body" rows="8" cols="80" class="form-control" placeholder="Location body" autocomplete="off" formControlName="body"></textarea>
-			<ul class="help-block">
-				<li *ngIf="form.controls.body.dirty && form.controls.body.errors?.required">This field is required.</li>
-				<li *ngIf="(form.controls.body.dirty && form.controls.body.errors?.maxlength) || (form.controls.body.dirty && form.controls.body.errors?.minlength)">Max length: 500, min length: 5</li>
-			</ul>
-		</div>
-		</div>
-	</div>
-
-	<div class ="col-md-5">
-		<div class="featurette-heading">
-			<h3 class="panel-title">
-				Location
-			</h3>
-		</div>
-		<agm-map [latitude]="lat" [longitude]="lng" [disableDefaultUI]="true" [zoomControl]="false" [streetViewControl]="false" (mapClick)="mapClicked($event)" >
-	  		<agm-marker [latitude]="lat" [longitude]="lng"></agm-marker>
-		</agm-map>
-	</div>
-
-	</div>
-	<div class="row featurette">
-
-	<div class="col-md-7">
-	<button [disabled]="processing" type="button" name="button" (click)="goBack()" class="btn btn-warning">Go Back</button>
-
-	<button [disabled]="processing || !form.valid" type="submit" name="button" class="btn btn-success">Submit</button>
-	</div>
-
-	<div class ="col-md-5">
-	<button [disabled]="processing" type="button" name="button" (click)="addLocation()" class="btn btn-success">Physical location</button>
-	</div>
-	</div>
-</form>
+<a [routerLink]="['/new-location']"><button type="button" name="button" class="myButton buttonHover" >Create new location</button></a>
+<input type="text" name="tag" class="myInput"/>
+<button type="button" name="button" class="myButton buttonHover" (click)="addTag(this)">AddTag</button>
+<div style="clear: both;"></div>
 
 <div *ngIf="!newLocation" >
-	<div *ngFor="let location of locations" >
-		<div class="row featurette">
-			<div class="col-md-5">
-				<div class="featurette-heading">
-					<h3 class="panel-title">
-						{{location.title}}
-					</h3>
+
+	<div *ngFor="let location of locations">
+			<div id="{{ location._id }}"  (click)="onClick($event, location._id)" [ngClass]="location._id === currentId ? 'image-grid-card-expand' : 'image-grid-card'">
+				<div [ngClass]="location._id === currentId ? 'image-grid-card-pic-sqaure' : 'field-content'">
+					<img [src]="location.src">
 				</div>
-				<div class="lead">
-				 	{{location.body}}
+				<div *ngIf="location._id === currentId" class="image-grid-card-map-sqaure" >
+					<div *ngIf="location.lat && location.lng" >
+						<agm-map [style.height.px]="mapHeight" [latitude]="location.lat" [longitude]="location.lng" [disableDefaultUI]="true" [zoomControl]="false" [mapDraggable]="false" [streetViewControl]="false" [scrollwheel]="false">
+						  	<agm-marker [latitude]="location.lat" [longitude]="location.lng"></agm-marker>
+						</agm-map>
+					</div>
 				</div>
-				<div class="panel-footer">
-				<a [routerLink]="['/edit-location/', location._id]" *ngIf="username === location.createdBy"><button type="button" name="button" class="btn btn-sm btn-info">Edit</button></a>
-				<a [routerLink]="['/delete-location/', location._id]" *ngIf="username === location.createdBy"><button type="button" name="button" class="btn btn-sm btn-danger">Delete</button></a>
+				<div style="clear: both;"></div>
+				<div *ngIf="location._id === currentId" class="bodyPanel">
+					<p>{{location.body}}<p>
+				</div>
+				<div class="tagsPanel">
+					<button *ngFor="let tag of tags" type="button" name="button" class="btn btn-sm btn-info">{{tag}}</button>
+				</div>
+				<div *ngIf="location.createdBy !== username" class="namePanel">
+					<button type="button" name="button" class="btn btn-sm btn-info">{{location.createdBy}}</button>
+				</div>
+				<div class="buttonsPanel" *ngIf="username === location.createdBy">
+					<a [routerLink]="['/edit-location/', location._id]" *ngIf="username === location.createdBy"><button type="button" name="button" class="btn btn-sm btn-info">Edit</button></a>
+					<a [routerLink]="['/delete-location/', location._id]" *ngIf="username === location.createdBy"><button type="button" name="button" class="btn btn-sm btn-danger">Delete</button></a>
 				</div>
 			</div>
-			<div *ngIf="location.lat && location.lng" class ="col-md-5">
-				<agm-map [latitude]="location.lat" [longitude]="location.lng" [disableDefaultUI]="true" [zoomControl]="false" [mapDraggable]="false" [streetViewControl]="false" [scrollwheel]="false">
-	  				<agm-marker [latitude]="location.lat" [longitude]="location.lng"></agm-marker>
-				</agm-map>
-			</div>
-		</div>
-		<hr class="featurette-divider">
 	</div>
-	
 </div>

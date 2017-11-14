@@ -27,6 +27,7 @@ app.use(bodyParser.json());// parse application/json
 app.use(express.static(__dirname + '/public'));
 app.use('/authentication', authentication);
 app.use('/locations', locations);
+app.use('/picture', locations);
 
 //app.get('/', function(req,res){
 //	res.send('hello world');

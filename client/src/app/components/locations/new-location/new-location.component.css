@@ -1,0 +1,27 @@
+agm-map {
+  height: 400px;
+  width: 100%;
+}
+
+.isActive {background-color: #555555;} /* Black */
+.inActive {background-color: #e7e7e7; color: black;} /* Gray */ 
+
+.left{
+float: left;
+}
+
+.right{
+float: right;
+}
+
+.tagsNew {
+	margin: 0px;
+	border-radius: 5px;
+	padding:2px;
+	background-color: rgba(255, 255, 250, 1);
+}
+
+.picture{
+ 	width:100%; 
+ 	height:100%;
+}

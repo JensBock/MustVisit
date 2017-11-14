@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { LocationService } from '../../services/location.service';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-locations',
@@ -10,133 +11,47 @@ import { LocationService } from '../../services/location.service';
 })
 export class LocationsComponent implements OnInit {
 
-	messageClass;
-	message;
-	newLocation = false;
-  form;
-  processing = false;
   username;
   locations;
-  lat: number ;
-  lng: number ;
+  currentId;
+
+  mapHeight;
+  tags;
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private locationService: LocationService
-  ) { 
-    this.createNewLocationForm();
-   }
+    private locationService: LocationService,
+    private _DomSanitizationService: DomSanitizer
+  ) { }
 
-  createNewLocationForm(){
-    this.form = this.formBuilder.group({
-      title: ['',Validators.compose([
-        Validators.required,
-        Validators.maxLength(50),
-        Validators.minLength(5),
-        this.alphaNumericValidation
-      ])],
-      body: ['',Validators.compose([
-        Validators.required,
-        Validators.maxLength(500),
-        Validators.minLength(5),
-      ])]
-    })
+  getImageArrayBufferToBase64(pictureSrcString){
+  return this._DomSanitizationService.bypassSecurityTrustUrl("data:image/jpg;base64," + String(this.arrayBufferToBase64(pictureSrcString)));
   }
 
-  enableNewLocationForm() {
-    this.form.get('title').enable();
-    this.form.get('body').enable();
+  arrayBufferToBase64( buffer ) {
+    var binary = '';
+    var bytes = new Uint8Array( buffer );
+    var len = bytes.byteLength;
+    for (var i = 0; i < len; i++) {
+      binary += String.fromCharCode( bytes[ i ] );
+    }
+    return window.btoa( binary );
   }
 
-  disableNewLocationForm() {
-    this.form.get('title').disable();
-    this.form.get('body').disable();
-  }
-
-  alphaNumericValidation(controls){
-    const regExp = new RegExp(/^[a-zA-Z0-9 ]+$/);
-    if(regExp.test(controls.value)) {
-      return null
+  onClick(event,id){
+    if(this.currentId == id){
+      this.currentId = null;
     } else {
-      return {'alphaNumericValidation': true}
+      this.currentId = id;
+      setTimeout(() =>{
+      let el = document.getElementById(id);
+      let ell = <HTMLElement> el.children[0];
+      this.mapHeight = ell.offsetHeight;
+      el.scrollIntoView({behavior: "smooth"});
+      },100)
     }
-  };
-
-  newLocationForm() {
-    this.newLocation = true; // Show new blog form
-  }
-
-  onLocationSubmit() {
-  	this.newLocation = true;
-    this.disableNewLocationForm();
-
-    const location = {
-    title: this.form.get('title').value,
-    body: this.form.get('body').value,
-    lat: this.lat,
-    lng: this.lng,
-    createdBy: this.username
-    }
-
-    this.locationService.newLocation(location).subscribe(data => {
-      if(!data.success) {
-        this.messageClass = 'alert alert-danger';
-        this.message = data.message;
-        this.processing = false;
-        this.enableNewLocationForm();
-      } else {
-        this.messageClass = 'alert alert-success';
-        this.message = data.message;
-        this.getAllLocations();
-        setTimeout(() =>{
-          this.newLocation = false;
-          this.processing = false;
-          this.message = false;
-          this.form.reset();
-          this.enableNewLocationForm();
-        },2000)
-      }
-    });
-  }
-
-  goBack() {
-    window.location.reload();
-  }
-
-  addLocation() {
-    if (window.navigator && window.navigator.geolocation) {
-        window.navigator.geolocation.getCurrentPosition(
-            position => {
-                    this.lat = position.coords.latitude,
-                    this.lng = position.coords.longitude
-            },
-            error => {
-                switch (error.code) {
-                    case 1:
-                        console.log('Permission Denied');
-                        break;
-                    case 2:
-                        console.log('Position Unavailable');
-                        break;
-                    case 3:
-                        console.log('Timeout');
-                        break;
-                }
-            }
-        );
-    } else { 
-        this.messageClass = 'alert alert-success';
-        this.message = 'Geolocation is not supported by this browser.';
-    }
-  }
-
-  mapClicked($event){
-    if ($event.coords.lat && $event.coords.lng) {
-        this.lat = $event.coords.lat
-        this.lng = $event.coords.lng
-        console.log(this.lat)
-    }
+  
   }
 
 
@@ -146,31 +61,21 @@ export class LocationsComponent implements OnInit {
     });
   }
 
+  getAllLocationsAndPictures(){
+    this.locationService.getAllLocationsAndPicture().subscribe(data => {
+      this.locations = data.locations;
+      for (let int in this.locations){
+      this.locations[int].src = this.getImageArrayBufferToBase64(this.locations[int].picture.img.data)
+      ;
+      }
+    });
+  }
+
   ngOnInit() {
+    this.tags = ["tag1","tag2"];
     this.authService.getProfile().subscribe( profile => {
       this.username = profile.user.username;
     });
-    if (window.navigator && window.navigator.geolocation) {
-        window.navigator.geolocation.getCurrentPosition(
-            position => {
-                    this.lat = position.coords.latitude,
-                    this.lng = position.coords.longitude
-            },
-            error => {
-                switch (error.code) {
-                    case 1:
-                        console.log('Permission Denied');
-                        break;
-                    case 2:
-                        console.log('Position Unavailable');
-                        break;
-                    case 3:
-                        console.log('Timeout');
-                        break;
-                }
-            }
-        );
-    }
-    this.getAllLocations();
+    this.getAllLocationsAndPictures();
     }
 }

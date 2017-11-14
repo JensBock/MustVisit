@@ -14,15 +14,20 @@ import { LocationService } from './services/location.service';
 import { LoginComponent } from './components/login/login.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { FlashMessagesModule } from 'angular2-flash-messages';
+
 import { AuthGuard } from './guards/auth.guard';
 import { NotAuthGuard } from './guards/notAuth.guard';
+
 import { LocationsComponent } from './components/locations/locations.component';
 import { EditLocationComponent } from './components/locations/edit-location/edit-location.component';
 import { DeleteLocationComponent } from './components/locations/delete-location/delete-location.component';
+import { NewLocationComponent } from './components/locations/new-location/new-location.component';
+
 import { HoneycombanimComponent } from './components/honeycombanim/honeycombanim.component';
 
 import { AgmCoreModule } from '@agm/core';
 import { env } from '../environments/env';
+
 
 
 @NgModule({
@@ -37,7 +42,8 @@ import { env } from '../environments/env';
     LocationsComponent,
     EditLocationComponent,
     DeleteLocationComponent,
-    HoneycombanimComponent
+    HoneycombanimComponent,
+    NewLocationComponent
   ],
   imports: [
     BrowserModule,

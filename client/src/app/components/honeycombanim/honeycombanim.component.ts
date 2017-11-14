@@ -31,8 +31,8 @@ export class HoneycombanimComponent implements OnInit {
     
         this.opts = {
           
-          len: 20,
-          count: 50,
+          len: 100,
+          count: 10,
           baseTime: 10,
           addedTime: 10,
           dieChance: .05,

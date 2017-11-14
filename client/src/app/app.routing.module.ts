@@ -6,6 +6,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { LoginComponent } from './components/login/login.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { LocationsComponent } from './components/locations/locations.component';
+import { NewLocationComponent } from './components/locations/new-location/new-location.component';
 import { EditLocationComponent } from './components/locations/edit-location/edit-location.component';
 import { DeleteLocationComponent } from './components/locations/delete-location/delete-location.component';
 import { AuthGuard } from './guards/auth.guard';
@@ -18,6 +19,7 @@ const appRoutes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [NotAuthGuard]},
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard]},
   { path: 'locations', component: LocationsComponent, canActivate: [AuthGuard]},
+  { path: 'new-location', component: NewLocationComponent, canActivate: [AuthGuard]},
   { path: 'edit-location/:id', component: EditLocationComponent, canActivate: [AuthGuard]},
   { path: 'delete-location/:id', component: DeleteLocationComponent, canActivate: [AuthGuard]},
   { path: '**', component: HomeComponent }

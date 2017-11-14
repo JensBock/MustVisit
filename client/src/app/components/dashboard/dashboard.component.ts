@@ -19,6 +19,17 @@ export class DashboardComponent implements OnInit {
   loc;
   bounds;
   loaded = false;
+  username;
+  labelOptions = {
+  color: '#CC0000'
+  }
+  labelOptionsWithText = {
+  color: '#CC0000',
+  fontFamily: '',
+  fontSize: '14px',
+  fontWeight: 'bold',
+  text: 'Some Text',
+  }
 
   constructor(
     private authService: AuthService,
@@ -59,6 +70,9 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.authService.getProfile().subscribe( profile => {
+      this.username = profile.user.username;
+    });
     this.getAllLocations();
   }
 
