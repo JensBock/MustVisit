@@ -15,15 +15,39 @@ export class LocationsComponent implements OnInit {
   locations;
   currentId;
 
+  messageClass;
+  message;
+  processing = false;
+
+  form;
+  formData: FormData;
+
   mapHeight;
-  tags;
+  searchTags = [];
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private locationService: LocationService,
     private _DomSanitizationService: DomSanitizer
-  ) { }
+  ) { 
+    this.createNewTagForm();
+  }
+
+
+  createNewTagForm(){
+    this.form = this.formBuilder.group({
+      tag: ['',Validators.compose([
+        Validators.required,
+        Validators.maxLength(15),
+        Validators.minLength(3),
+      ])]
+    })
+  }
+
+  onTagSubmit() {
+
+  }
 
   getImageArrayBufferToBase64(pictureSrcString){
   return this._DomSanitizationService.bypassSecurityTrustUrl("data:image/jpg;base64," + String(this.arrayBufferToBase64(pictureSrcString)));
@@ -54,6 +78,15 @@ export class LocationsComponent implements OnInit {
   
   }
 
+  addTag(){
+    this.searchTags.push(this.form.get('tag').value);
+    this.form.get('tag').setValue('');
+  }
+
+  onTagClick(value){
+  this.searchTags.push(value);
+  }
+
 
   getAllLocations(){
     this.locationService.getAllLocations().subscribe(data => {
@@ -65,14 +98,12 @@ export class LocationsComponent implements OnInit {
     this.locationService.getAllLocationsAndPicture().subscribe(data => {
       this.locations = data.locations;
       for (let int in this.locations){
-      this.locations[int].src = this.getImageArrayBufferToBase64(this.locations[int].picture.img.data)
-      ;
+        this.locations[int].src = this.getImageArrayBufferToBase64(this.locations[int].picture.img.data);
       }
     });
   }
 
   ngOnInit() {
-    this.tags = ["tag1","tag2"];
     this.authService.getProfile().subscribe( profile => {
       this.username = profile.user.username;
     });

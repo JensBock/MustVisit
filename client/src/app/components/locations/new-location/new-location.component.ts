@@ -29,7 +29,7 @@ export class NewLocationComponent implements OnInit {
   locations;
   lat: number ;
   lng: number ;
-  tags;
+  tags=[];
   picture;
   pictureId;
   pictureIsValid= false;
@@ -190,6 +190,7 @@ export class NewLocationComponent implements OnInit {
       body: this.form.get('body').value,
       lat: this.lat,
       lng: this.lng,
+      tags: this.tags,
       createdBy: this.username,
       picture: pictureId
       }
@@ -290,7 +291,6 @@ export class NewLocationComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.tags = ["tag1","tag2"];
     this.authService.getProfile().subscribe( profile => {
       this.username = profile.user.username;
     });

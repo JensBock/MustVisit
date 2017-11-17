@@ -104,6 +104,7 @@ module.exports = (router) => {
 							body: req.body.body,
 							lat: req.body.lat,
 		    				lng: req.body.lng,
+		    				tags: req.body.tags,
 							createdBy: req.body.createdBy,
 							picture: req.body.picture
 							});
