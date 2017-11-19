@@ -1,3 +1,6 @@
+<!--[routerLinkActive]="['active']"           =>  attaches the class active -->
+<!--[routerLinkActiveOptions]="{exact:true}"  =>  this will add the classes only when the url matches the link exactly.-->
+
 <nav class="navbar navbar-expand navbar-dark bg-dark">
       <a class="navbar-brand" href="#">MustVisit</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample02" aria-controls="navbarsExample02" aria-expanded="false" aria-label="Toggle navigation">
@@ -6,23 +9,46 @@
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto">
           <li *ngIf="authService.loggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" >
-            <a class="nav-link" routerLink="/dashboard">Dashboard</a>
+            <a class="nav-link text" routerLink="/dashboard">Dashboard</a>
+            <a class="nav-link icon" routerLink="/dashboard" routerLinkActive #rladash="routerLinkActive">
+              <img *ngIf=rladash.isActive src="../../../assets/DashboardActive.png" alt="" />
+              <img *ngIf=!rladash.isActive src="../../../assets/Dashboard.png" alt="" />
+            </a>
           </li>
           <li *ngIf="authService.loggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" >
-            <a class="nav-link" routerLink="/profile">Profile</a>
+            <a class="nav-link text" routerLink="/profile">Profile</a>
+            <a class="nav-link icon" routerLink="/profile" routerLinkActive #rlaprof="routerLinkActive">
+              <img *ngIf=rlaprof.isActive src="../../../assets/ProfileActive.png" alt="" />
+              <img *ngIf=!rlaprof.isActive src="../../../assets/Profile.png" alt="" />
+            </a>
           </li>
           <li *ngIf="authService.loggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" >
-            <a class="nav-link" routerLink="/locations">locations</a>
+            <a class="nav-link text" routerLink="/locations">locations</a>
+            <a class="nav-link icon" routerLink="/locations" routerLinkActive #rlaloca="routerLinkActive">
+              <img *ngIf=rlaloca.isActive src="../../../assets/LocationActive.png" alt="" />
+              <img *ngIf=!rlaloca.isActive src="../../../assets/Location.png" alt="" />
+            </a>
           </li>
           <li *ngIf="!authService.loggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" >
-            <a class="nav-link" routerLink="/register">Register</a>
+            <a class="nav-link text" routerLink="/register">Register</a>
+            <a class="nav-link icon" routerLink="/register" routerLinkActive #rlarege="routerLinkActive">
+              <img *ngIf=rlarege.isActive src="../../../assets/RegisterActive.png" alt="" />
+              <img *ngIf=!rlarege.isActive src="../../../assets/Register.png" alt="" />
+            </a>
           </li>
           <li *ngIf="!authService.loggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" >
-            <a class="nav-link" routerLink="/login">LogIn</a>
+            <a class="nav-link text" routerLink="/login">LogIn</a>
+            <a class="nav-link icon" routerLink="/login" routerLinkActive #rlalogi="routerLinkActive">
+              <img *ngIf=rlalogi.isActive src="../../../assets/LoginActive.png" alt="" />
+              <img *ngIf=!rlalogi.isActive src="../../../assets/Login.png" alt="" />
+            </a>
           </li>
-          <li *ngIf="authService.loggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" >
-            <a class="nav-link" (click)="onLogoutClick()">LogOut</a>
-          </li>
+            <li *ngIf="authService.loggedIn()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" >
+              <a class="nav-link text" (click)="onLogoutClick()">LogOut</a>
+              <a class="nav-link icon" (click)="onLogoutClick()">
+                <img src="../../../assets/Logout.png" alt="" />
+              </a>
+            </li>
         </ul>
       </div>
     </nav>

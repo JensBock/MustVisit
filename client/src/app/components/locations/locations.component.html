@@ -38,18 +38,27 @@
 				<div *ngIf="location._id === currentId" class="bodyPanel">
 					<p>{{location.body}}<p>
 				</div>
-				<div *ngIf="location.tags.length" class="tagsPanel">
-					<button *ngFor="let tag of location.tags" type="button" name="button" class="btn btn-sm btn-info" (click)="onTagClick(tag)">{{tag}}</button>
-				</div>
-				<div *ngIf="!location.tags.length" class="tagsPanel">
-					<button disabled="true" type="button" name="button" class="btn btn-sm btn-info">No tags</button>
+				<div *ngIf="location._id === currentId">
+					<div *ngIf="location.tags.length" class="tagsPanel">
+						<button *ngFor="let tag of location.tags" type="button" name="button" class="btn btn-sm btn-info" (click)="onTagClick(tag)">{{tag}}</button>
+					</div>
+					<div *ngIf="!location.tags.length" class="tagsPanel">
+						<button disabled="true" type="button" name="button" class="btn btn-sm btn-info">No tags</button>
+					</div>
 				</div>
 				<div *ngIf="location.createdBy !== username" class="namePanel">
-					<button type="button" name="button" class="btn btn-sm btn-info">{{location.createdBy}}</button>
+					<button type="button" name="button" class="btn btn-sm btn-info text"><img src="../../../assets/Person.png" alt="" />{{location.createdBy}}</button>
+					<button type="button" name="button" class="btn btn-sm btn-info icon"><img src="../../../assets/Person.png" alt="" />{{location.createdBy}}</button>
 				</div>
 				<div class="buttonsPanel" *ngIf="username === location.createdBy">
-					<a [routerLink]="['/edit-location/', location._id]" *ngIf="username === location.createdBy"><button type="button" name="button" class="btn btn-sm btn-info">Edit</button></a>
-					<a [routerLink]="['/delete-location/', location._id]" *ngIf="username === location.createdBy"><button type="button" name="button" class="btn btn-sm btn-danger">Delete</button></a>
+					<a  [routerLink]="['/edit-location/', location._id]" *ngIf="username === location.createdBy">
+						<button type="button" name="button" class="btn btn-sm btn-info text"><img src="../../../assets/Edit.png" alt="" />Edit</button>
+						<button type="button" name="button" class="btn btn-sm btn-info icon"><img src="../../../assets/Edit.png" alt="" /></button>
+					</a>
+					<a [routerLink]="['/delete-location/', location._id]" *ngIf="username === location.createdBy">
+						<button type="button" name="button" class="btn btn-sm btn-danger text"><img src="../../../assets/Delete.png" alt="" />Delete</button>
+						<button type="button" name="button" class="btn btn-sm btn-danger icon"><img src="../../../assets/Delete.png" alt="" /></button>
+					</a>
 				</div>
 			</div>
 	</div>

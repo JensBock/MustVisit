@@ -27,6 +27,7 @@ import { HoneycombanimComponent } from './components/honeycombanim/honeycombanim
 
 import { AgmCoreModule } from '@agm/core';
 import { env } from '../environments/env';
+import { PopupLocationComponent } from './components/popup-location/popup-location.component';
 
 
 
@@ -43,7 +44,8 @@ import { env } from '../environments/env';
     EditLocationComponent,
     DeleteLocationComponent,
     HoneycombanimComponent,
-    NewLocationComponent
+    NewLocationComponent,
+    PopupLocationComponent
   ],
   imports: [
     BrowserModule,
