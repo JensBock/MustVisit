@@ -54,6 +54,21 @@ export class LocationService {
     return this.http.get(this.domain + 'locations/allLocations', this.options).map(res => res.json());
   }
 
+  getAllLocationsByUsers (users){
+    this.createAuthenticationHeaders();
+    return this.http.get(this.domain + 'locations/LocationsByUser/' + users, this.options).map(res => res.json());
+  }
+
+  getAllLocationsByTags (tags){
+    this.createAuthenticationHeaders();
+    tags = tags.filter(Boolean)
+      if (tags.length ==0) {
+        return this.http.get(this.domain + 'locations/allLocations', this.options).map(res => res.json());
+      } else {
+        return this.http.get(this.domain + 'locations/LocationsByTags/' + tags, this.options).map(res => res.json());
+      } 
+    }
+
   getAllLocationsAndPicture (){
     this.createAuthenticationHeaders();
     return this.http.get(this.domain + 'locations/allLocationsAndPictures', this.options).map(res => res.json());
@@ -72,6 +87,11 @@ export class LocationService {
   deleteLocation(id){
     this.createAuthenticationHeaders();
     return this.http.delete(this.domain + 'locations/deleteLocation/' + id, this.options).map(res => res.json());
+  }
+
+  deletePicture(id){
+    this.createAuthenticationHeaders();
+    return this.http.delete(this.domain + 'locations/deletePicture/' + id, this.options).map(res => res.json());
   }
 
 }

@@ -1,64 +1,28 @@
-<h1 class="page-header"></h1>
-<div class="row show-hide-message" *ngIf="message">
-	<div [ngClass]="messageClass">
-		{{message}}
-	</div>
-</div>
-
 <a [routerLink]="['/new-location']"><button type="button" name="button" class="myButton buttonHover" >Create new location</button></a>
 
-<form [formGroup]="form" name="tagForm" (submit)="onTagSubmit()">
-	<div class="form-group">
-		<input type="text" name="tag" class="form-control myInput" placeholder="Location tags" autocomplete="off" formControlName="tag"/>
-		<button [disabled]="processing || !form.controls.tag.valid || !form.controls.tag.dirty" type="button" name="button" class="myButtonTag buttonHover" (click)="addTag()">AddTag</button>
-		<div style="clear: both;"></div>
-		<ul>
-			<li *ngIf="(form.controls.tag.dirty && form.controls.tag.errors?.maxlength) || (form.controls.tag.dirty && form.controls.tag.errors?.minlength)">Max length: 15, min length: 3</li>
-		</ul>
-	</div>
-	<div *ngIf="searchTags.length" class="tagsNew"><button *ngFor="let searchTag of searchTags" type="button" name="button" class="btn btn-sm btn-info">{{searchTag}}</button></div>
-	<div style="clear: both;"></div>
-</form>
+<app-tag-search-bar (tagEvent)="receiveTags($event)"></app-tag-search-bar>
 
-	<div *ngFor="let location of locations">
-			<div [ngClass]="location._id === currentId ? 'image-grid-card-expand' : 'image-grid-card'">
-				<div id="{{ location._id }}"  (click)="onClick($event, location._id)">
-					<div  [ngClass]="location._id === currentId ? 'image-grid-card-pic-sqaure' : 'field-content'">
-						<img [src]="location.src">
-					</div>
-					<div *ngIf="location._id === currentId" class="image-grid-card-map-sqaure" >
-						<div *ngIf="location.lat && location.lng" >
-							<agm-map [style.height.px]="mapHeight" [latitude]="location.lat" [longitude]="location.lng" [disableDefaultUI]="true" [zoomControl]="false" [mapDraggable]="false" [streetViewControl]="false" [scrollwheel]="false">
-							  	<agm-marker [latitude]="location.lat" [longitude]="location.lng"></agm-marker>
-							</agm-map>
-						</div>
-					</div>
-				</div>
-				<div style="clear: both;"></div>
-				<div *ngIf="location._id === currentId" class="bodyPanel">
-					<p>{{location.body}}<p>
-				</div>
-				<div *ngIf="location._id === currentId">
-					<div *ngIf="location.tags.length" class="tagsPanel">
-						<button *ngFor="let tag of location.tags" type="button" name="button" class="btn btn-sm btn-info" (click)="onTagClick(tag)">{{tag}}</button>
-					</div>
-					<div *ngIf="!location.tags.length" class="tagsPanel">
-						<button disabled="true" type="button" name="button" class="btn btn-sm btn-info">No tags</button>
-					</div>
-				</div>
-				<div *ngIf="location.createdBy !== username" class="namePanel">
-					<button type="button" name="button" class="btn btn-sm btn-info text"><img src="../../../assets/Person.png" alt="" />{{location.createdBy}}</button>
-					<button type="button" name="button" class="btn btn-sm btn-info icon"><img src="../../../assets/Person.png" alt="" />{{location.createdBy}}</button>
-				</div>
-				<div class="buttonsPanel" *ngIf="username === location.createdBy">
-					<a  [routerLink]="['/edit-location/', location._id]" *ngIf="username === location.createdBy">
-						<button type="button" name="button" class="btn btn-sm btn-info text"><img src="../../../assets/Edit.png" alt="" />Edit</button>
-						<button type="button" name="button" class="btn btn-sm btn-info icon"><img src="../../../assets/Edit.png" alt="" /></button>
-					</a>
-					<a [routerLink]="['/delete-location/', location._id]" *ngIf="username === location.createdBy">
-						<button type="button" name="button" class="btn btn-sm btn-danger text"><img src="../../../assets/Delete.png" alt="" />Delete</button>
-						<button type="button" name="button" class="btn btn-sm btn-danger icon"><img src="../../../assets/Delete.png" alt="" /></button>
-					</a>
-				</div>
+<div *ngFor="let location of locations | tag:searchTags ">
+	<div class="image-grid-card">
+		<div id="{{ location._id }}"  (click)="onClick($event, location._id)">
+			<div  class="field-content">
+				<img [src]="location.src">
 			</div>
+		</div>
+		<div style="clear: both;"></div>
+		<div *ngIf="location.createdBy !== username" class="namePanel">
+			<button type="button" name="button" class="btn btn-sm btn-info text"><img src="../../../assets/Person.png" alt="" />{{location.createdBy}}</button>
+			<button type="button" name="button" class="btn btn-sm btn-info icon"><img src="../../../assets/Person.png" alt="" />{{location.createdBy}}</button>
+		</div>
+		<div class="buttonsPanel" *ngIf="username === location.createdBy">
+			<a  [routerLink]="['/edit-location/', location._id]" *ngIf="username === location.createdBy">
+				<button type="button" name="button" class="btn btn-sm btn-info text"><img src="../../../assets/Edit.png" alt="" />Edit</button>
+				<button type="button" name="button" class="btn btn-sm btn-info icon"><img src="../../../assets/Edit.png" alt="" /></button>
+			</a>
+			<a [routerLink]="['/delete-location/', location._id]" *ngIf="username === location.createdBy">
+				<button type="button" name="button" class="btn btn-sm btn-danger text"><img src="../../../assets/Delete.png" alt="" />Delete</button>
+				<button type="button" name="button" class="btn btn-sm btn-danger icon"><img src="../../../assets/Delete.png" alt="" /></button>
+			</a>
+		</div>
 	</div>
+</div>

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl} from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { MessageSnackbarService } from '../../services/message-snackbar.service';
 import { Router } from '@angular/router';
 import { AuthGuard } from '../../guards/auth.guard';
 
@@ -11,17 +12,14 @@ import { AuthGuard } from '../../guards/auth.guard';
 })
 export class LoginComponent implements OnInit {
 
-	messageClass;
-	message;
 	processing = false;
 	form;
   previousUrl;
 
-
-
   constructor(
   	private formBuilder: FormBuilder,
     private authService: AuthService,
+    private messageSnackbarService: MessageSnackbarService,
     private router: Router,
     private authGuard: AuthGuard
 
@@ -56,13 +54,11 @@ export class LoginComponent implements OnInit {
 
     this.authService.login(user).subscribe(data => {
       if(!data.success){
-        this.messageClass = 'alert alert-danger';
-        this.message = data.message;
         this.processing = false;
         this.enableForm();
+        this.messageSnackbarService.open({ data: data.message, duration: 6000});
       } else {
-        this.messageClass = 'alert alert-success';
-        this.message = data.message;
+        this.messageSnackbarService.open({ data: data.message, duration: 6000});
         this.authService.storeUserData(data.token, data.user)
         this.disableForm();
         setTimeout(() => {
@@ -72,18 +68,18 @@ export class LoginComponent implements OnInit {
             this.router.navigate(['/dashboard']);
           }
         }, 2000)
-
       }
     });
   }
 
   ngOnInit() {
     if(this.authGuard.redirectUrl){
-      this.messageClass = 'alert alert-danger';
-      this.message = 'You must be logged in to view that page.';
+      this.messageSnackbarService.open({ data: 'You must be logged in to view that page.', duration: 6000});
       this.previousUrl = this.authGuard.redirectUrl;
       this.authGuard.redirectUrl = undefined;
     }
   }
 
 }
+
+

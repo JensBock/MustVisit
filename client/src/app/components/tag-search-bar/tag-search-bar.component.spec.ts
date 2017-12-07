@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { HoneycombanimComponent } from './honeycombanim.component';
+import { TagSearchBarComponent } from './tag-search-bar.component';
 
-describe('HoneycombanimComponent', () => {
-  let component: HoneycombanimComponent;
-  let fixture: ComponentFixture<HoneycombanimComponent>;
+describe('TagSearchBarComponent', () => {
+  let component: TagSearchBarComponent;
+  let fixture: ComponentFixture<TagSearchBarComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ HoneycombanimComponent ]
+      declarations: [ TagSearchBarComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(HoneycombanimComponent);
+    fixture = TestBed.createComponent(TagSearchBarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

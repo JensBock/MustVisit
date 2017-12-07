@@ -1,22 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Location } from '@angular/common';
-import {  Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormControl, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { AuthService } from '../../../services/auth.service';
 import { LocationService } from '../../../services/location.service';
-import { DomSanitizer } from '@angular/platform-browser';
+import { Picturebase64Service } from '../../../services/picturebase64.service';
+import { ValidateService } from '../../../services/validate.service';
+import { ProgressbarService } from '../../../services/progressbar.service';
+import { MessageSnackbarService } from '../../../services/message-snackbar.service';
 
 @Component({
   selector: 'app-new-location',
   templateUrl: './new-location.component.html',
   styleUrls: ['./new-location.component.css']
 })
-export class NewLocationComponent implements OnInit {
-
-  messageClass;
-  message;
+export class NewLocationComponent implements OnInit, OnDestroy {
 
   form;
+  subscription;
 
   newLocation = false;
   processing = false;
@@ -42,10 +43,13 @@ export class NewLocationComponent implements OnInit {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private locationService: LocationService,
-    private _DomSanitizationService: DomSanitizer,
+    private picturebase64Service: Picturebase64Service,
+    private progressbarService: ProgressbarService,
+    private messageSnackbarService: MessageSnackbarService,
     private router: Router
-    ) { 
-	this.createNewLocationForm();
+    ) 
+    { 
+	   this.createNewLocationForm();
     }
 
    createNewLocationForm(){
@@ -54,7 +58,7 @@ export class NewLocationComponent implements OnInit {
         Validators.required,
         Validators.maxLength(50),
         Validators.minLength(5),
-        this.alphaNumericValidation
+        ValidateService.alphaNumericValidation
       ])],
       body: ['',Validators.compose([
         Validators.required,
@@ -65,6 +69,7 @@ export class NewLocationComponent implements OnInit {
         Validators.required,
         Validators.maxLength(15),
         Validators.minLength(3),
+        this.checkTagIsInArrayValidation.bind(this)
       ])]
     })
   }
@@ -78,15 +83,6 @@ export class NewLocationComponent implements OnInit {
     this.form.get('title').disable();
     this.form.get('body').disable();
   }
-
-  alphaNumericValidation(controls){
-    const regExp = new RegExp(/^[a-zA-Z0-9 ]+$/);
-    if(regExp.test(controls.value)) {
-      return null
-    } else {
-      return {'alphaNumericValidation': true}
-    }
-  };
 
   newLocationForm() {
     this.newLocation = true; // Show new blog form
@@ -102,83 +98,47 @@ export class NewLocationComponent implements OnInit {
       this.file = fileList[0];
       ext = this.file.name.substring(this.file.name.lastIndexOf('.') + 1).toLowerCase();   
       if (validFormats.indexOf(ext) > -1) {
-        this.messageClass = 'alert alert-success';
-        this.message = ext + " is a valid picture format";
+        this.messageSnackbarService.open({ data: ext + ' is a valid picture format', duration: 6000});
         pictureSrcString = this.pictureLoader(this.file);
         this.pictureIsValid = true;
       } else {        
-        this.messageClass = 'alert alert-danger';
-        this.message = ext + " is not valid picture format select one of following extensions (JPG, JPEG)";
+        this.messageSnackbarService.open({ data: ext + ' is not valid picture format select one of following extensions (JPG, JPEG)', duration: 6000});
         this.pictureIsValid = false;
       }
     }
   }
 
-  setImage(pictureSrcString){
-  this.pictureSrc = this._DomSanitizationService.bypassSecurityTrustUrl(pictureSrcString);
-  }
-
   pictureLoader(file){
+    this.progressbarService.enable();
     let pictureSrcString
     let reader = new FileReader();
         reader.onloadend = (e) => {
           pictureSrcString = reader.result;
-          this.setImage(pictureSrcString );
+          this.pictureSrc = this.picturebase64Service.getImage(pictureSrcString );
+          this.progressbarService.disable();
         }
         reader.readAsDataURL(file);
   }
 
-  uploadPicture(event) {
-    let fileList: FileList = event.target.files;
-    if (fileList.length > 0) {
-      this.file = fileList[0];
-      this.formData = new FormData();
-      this.formData.append('picture', this.file, this.file.name);
-      this.locationService.newPicture(this.formData).subscribe(data => {
-      if(!data.success) {
-        this.messageClass = 'alert alert-danger';
-        this.message = data.message;
-      } else {
-        this.messageClass = 'alert alert-success';
-        this.message = data.message;
-        this.pictureId = data.picture._id;
-        this.locationService.getSinglePicture(this.pictureId).subscribe(data => {
-          this.pictureSrc = this._DomSanitizationService.bypassSecurityTrustUrl("data:image/jpg;base64," + String(this.arrayBufferToBase64(data.picture[0].img.data)));
-        });
-      }
-    });
-    }
-  }
-
-  arrayBufferToBase64( buffer ) {
-    var binary = '';
-    var bytes = new Uint8Array( buffer );
-    var len = bytes.byteLength;
-    for (var i = 0; i < len; i++) {
-      binary += String.fromCharCode( bytes[ i ] );
-    }
-    return window.btoa( binary );
-  }
-
-
   onLocationSubmit() {
+    this.progressbarService.enable();
     if (this.pictureIsValid){
     this.uploadAndGetPictureId()
     }
   }
 
   uploadAndGetPictureId() {
+      this.processing = true;
       this.newLocation = true;
       this.disableNewLocationForm();
       this.formData = new FormData();
       this.formData.append('picture', this.file, this.file.name);
       this.locationService.newPicture(this.formData).subscribe(data => {
       if(!data.success) {
-        this.messageClass = 'alert alert-danger';
-        this.message = data.message;
+        this.messageSnackbarService.open({ data: data.message, duration: 6000});
+        this.progressbarService.disable();
       } else {
-        this.messageClass = 'alert alert-success';
-        this.message = data.message;
+        this.messageSnackbarService.open({ data: data.message, duration: 6000});
         this.newLocationSubmit(data.picture._id)
       }
     });
@@ -199,19 +159,17 @@ export class NewLocationComponent implements OnInit {
 
         this.locationService.newLocation(location).subscribe(data => {
           if(!data.success) {
-            this.messageClass = 'alert alert-danger';
-            this.message = data.message;
+            this.messageSnackbarService.open({ data: data.message, duration: 6000});
             this.processing = false;
             this.enableNewLocationForm();
           } else {
-            this.messageClass = 'alert alert-success';
-            this.message = data.message;
+            this.messageSnackbarService.open({ data: data.message, duration: 6000});
             setTimeout(() =>{
               this.newLocation = false;
               this.processing = false;
-              this.message = false;
               this.form.reset();
               this.enableNewLocationForm();
+              this.progressbarService.disable();
             },2000)
             setTimeout(() => {
             this.router.navigate(['/locations']);
@@ -229,34 +187,28 @@ export class NewLocationComponent implements OnInit {
     if (window.navigator && window.navigator.geolocation) {
         window.navigator.geolocation.getCurrentPosition(
             position => {
-                    this.lat = position.coords.latitude,
-                    this.lng = position.coords.longitude
-                    this.messageClass = null;
-                    this.message = null;
+              this.lat = position.coords.latitude,
+              this.lng = position.coords.longitude
             },
             error => {
-                switch (error.code) {
-                    case 1:
-                        console.log('Permission Denied');
-                        this.messageClass = 'alert alert-danger';
-                        this.message = "Permission Geolocation Denied";
-                        break;
-                    case 2:
-                        console.log('Position Unavailable');
-                        this.messageClass = 'alert alert-danger';
-                        this.message = "Permission Geolocation Unavailable";
-                        break;
-                    case 3:
-                        console.log('Timeout');
-                        this.messageClass = 'alert alert-danger';
-                        this.message = "Permission Geolocation Timeout";
-                        break;
-                }
+              switch (error.code) {
+                  case 1:
+                      console.log('Permission Denied');
+                      this.messageSnackbarService.open({ data: 'Permission Geolocation Denied', duration: 6000});
+                      break;
+                  case 2:
+                      console.log('Position Unavailable');
+                      this.messageSnackbarService.open({ data: 'Permission Geolocation Unavailable', duration: 6000});
+                      break;
+                  case 3:
+                      console.log('Timeout');
+                      this.messageSnackbarService.open({ data: 'Permission Geolocation Timeout', duration: 6000});
+                      break;
+              }
             }
         );
     } else { 
-        this.messageClass = 'alert alert-success';
-        this.message = 'Geolocation is not supported by this browser.';
+      this.messageSnackbarService.open({ data: 'Geolocation is not supported by this browser.', duration: 6000});
     }
   }
 
@@ -267,9 +219,26 @@ export class NewLocationComponent implements OnInit {
     }
   }
 
+  checkTagIsInArrayValidation(controls){
+    let res = null
+     this.tags.forEach( (item, index) => {
+     if(item === controls.value) {
+        res = {'checkTagIsInArrayValidation': true};
+        return res;
+      }});
+      return res;
+  }
+
   addTag(){
-    this.tags.push(this.form.get('tag').value);
+    let tag = this.form.get('tag').value
+    this.tags.push(tag);
     this.form.get('tag').setValue('');
+  }
+
+  removeTag(tag){
+   this.tags.forEach( (item, index) => {
+     if(item === tag) this.tags.splice(index,1);
+   });
   }
 
   setDataTab(){
@@ -290,37 +259,35 @@ export class NewLocationComponent implements OnInit {
     this.mapActive = true;
   }
 
-  ngOnInit() {
-    this.authService.getProfile().subscribe( profile => {
-      this.username = profile.user.username;
-    });
-    if (window.navigator && window.navigator.geolocation) {
-        window.navigator.geolocation.getCurrentPosition(
-            position => {
-                    this.lat = position.coords.latitude,
-                    this.lng = position.coords.longitude
-            },
-            error => {
-                switch (error.code) {
-                    case 1:
-                        console.log('Permission Denied');
-                        this.messageClass = 'alert alert-danger';
-                        this.message = "Permission Geolocation Denied";
-                        break;
-                    case 2:
-                        console.log('Position Unavailable');
-                        this.messageClass = 'alert alert-danger';
-                        this.message = "Permission Geolocation Unavailable";
-                        break;
-                    case 3:
-                        console.log('Timeout');
-                        this.messageClass = 'alert alert-danger';
-                        this.message = "Permission Geolocation Timeout";
-                        break;
-                }
-            }
-        );
+ observeToken(){
+  if (this.authService !== undefined){
+      this.subscription = this.authService.isLoggedIn().subscribe (authData => {
+        if (authData == false){
+          this.subscription.unsubscribe();
+          this.messageSnackbarService.open({ data: 'Token expired', duration: 6000});
+        }
+      })
     }
+  }
+
+  ngOnInit() {
+    this.subscription = this.authService.getProfile().subscribe( profile => {
+      if (!profile.success){
+        this.messageSnackbarService.open({ data: profile.message, duration: 6000});
+        setTimeout(() => {
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        }, 2000)
+      } else {
+        this.username = profile.user.username;
+        this.addLocation();
+        this.observeToken();
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 
 }

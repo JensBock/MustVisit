@@ -86,6 +86,40 @@ module.exports = (router) => {
 		}
 	});
 
+	router.delete('/deletePicture/:id', (req,res) => {
+		if (!req.params.id) {
+			res.json({ success: false, message: 'No picture id was provided.'});
+		} else {
+			Picture.findOne({_id:req.params.id}, (err,picture) => {
+				if (err) {
+					res.json({ success: false, message: 'Not a valid picture id'});
+				} else {
+					if (!picture) {
+						res.json({ success: false, message: 'Picture not found.'});
+					} else {
+						User.findOne({ _id: req.decoded.userId }, (err, user) => {
+	              			if (err) {
+	                			res.json({ success: false, message: err });
+	              			} else {
+	                			if (!user) {
+	                  				res.json({ success: false, message: 'Unable to authenticate user.' });
+	                			} else {
+	                				picture.remove((err) => {
+	                					if (err) {
+											res.json({ success: false, message: err });
+	                					} else {
+											res.json({ success: true, message: 'Picture deleted'});
+	                					}
+	                				});
+								}
+							}
+						});
+					}
+				}
+			});
+		}
+	});
+
 	router.post('/newLocation', (req,res) => {
 		if(!req.body.title){
 			res.json({success: false, message: 'Location title is required'});
@@ -149,6 +183,36 @@ module.exports = (router) => {
 		}).sort({'_id': -1});
 	});
 
+	router.get('/LocationsByUser/:users', (req, res) => {
+		Location.find({createdBy :{ $in: String(req.params.users).split(",").map(e => new RegExp(e, 'i'))}}, (err,locations) => {
+			if (err) {
+				res.json({ success: false, message: err});
+			} else {
+				if (!locations) {
+					res.json({ success: false, message: 'No locations found.'});
+				} else {
+					res.json({ success: true, locations: locations});
+				}
+
+			}
+		}).sort({'_id': -1});
+	});
+
+	router.get('/LocationsByTags/:tags', (req, res) => {
+		Location.find({tags :{ $all: String(req.params.tags).split(",").map(e => new RegExp(e, 'i'))}}, (err,locations) => {
+			if (err) {
+				res.json({ success: false, message: err});
+			} else {
+				if (!locations) {
+					res.json({ success: false, message: 'No locations found.'});
+				} else {
+					res.json({ success: true, locations: locations});
+				}
+
+			}
+		}).sort({'_id': -1});
+	});
+
 	router.get('/allLocationsAndPictures', (req, res) => {
 		Location.find({}, (err,locations) => {
 			if (err) {
@@ -171,17 +235,18 @@ module.exports = (router) => {
 			res.json({ success: false, message: 'No location id was provided.'});
 		} else {
 			Location.find({_id:req.params.id}, (err,location) => {
+				console.log(location.length);
 				if (err) {
 					res.json({ success: false, message: 'Not a valid location id'});
 				} else {
-					if (!location) {
+					if (!location || location.length == 0) {
 						res.json({ success: false, message: 'Location not found.'});
 					} else {
 						User.findOne({ _id: req.decoded.userId }, (err, user) => {
               				if (err) {
                 				res.json({ success: false, message: err });
               				} else {
-                				if (!user) {
+                				if (!user || user.length == 0) {
                   					res.json({ success: false, message: 'Unable to authenticate user.' });
                 				} else {
 										res.json({ success: true, location: location});
@@ -190,11 +255,11 @@ module.exports = (router) => {
 						});
 					}
 				}
-			});
+			}).populate('picture');
 		}
 	});
 
-	router.put('/updateLocation', (req, res) => {
+router.put('/updateLocation', (req, res) => {
     if (!req.body._id) {
       res.json({ success: false, message: 'No location id provided' });
     } else {
@@ -216,6 +281,8 @@ module.exports = (router) => {
                     location.body = req.body.body; //
                     location.lat = req.body.lat;
     				location.lng = req.body.lng;
+    				location.tags = req.body.tags;
+    				location.picture = req.body.picture
                     location.save((err) => {
                       if (err) {
                         if (err.errors) {
@@ -234,7 +301,8 @@ module.exports = (router) => {
         }
       });
     }
-  });
+});
+
 
 router.delete('/deleteLocation/:id', (req,res) => {
 	if (!req.params.id) {
@@ -244,7 +312,7 @@ router.delete('/deleteLocation/:id', (req,res) => {
 			if (err) {
 				res.json({ success: false, message: 'Not a valid location id'});
 			} else {
-				if (!location) {
+				if (!location ) {
 					res.json({ success: false, message: 'Location not found.'});
 				} else {
 					User.findOne({ _id: req.decoded.userId }, (err, user) => {
@@ -269,6 +337,7 @@ router.delete('/deleteLocation/:id', (req,res) => {
 		});
 	}
 });
+
 
 return router
 }

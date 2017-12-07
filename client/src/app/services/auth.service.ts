@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import 'rxjs/add/operator/map';
-import { tokenNotExpired } from 'angular2-jwt';
+import { tokenNotExpired,AuthHttp } from 'angular2-jwt';
 import { environment } from '../../environments/environment';
+import { Observable } from 'rxjs/Rx';
+import { BehaviorSubject } from 'rxjs/Rx'
 
 @Injectable()
 export class AuthService {
@@ -12,9 +14,12 @@ export class AuthService {
   user;
   options;
 
+  isLoginSubject = new BehaviorSubject<boolean>(this.loggedIn());
+
   constructor(
   private http: Http
-  ) { }
+  ) { 
+  }
 
   createAuthenticationHeaders(){
     this.loadToken();
@@ -30,8 +35,6 @@ export class AuthService {
   const token = localStorage.getItem('token');
   this.authToken = token;
   }
-
-
 
   registerUser(user) {
   	return this.http.post(this.domain + 'authentication/register', user).map(res => res.json());
@@ -52,9 +55,11 @@ export class AuthService {
   }
 
   logout(){
+    this.isLoginSubject.next(false);
     this.authToken = null;
     this.user = null
-    localStorage.clear();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
   }
 
   storeUserData(token, user) {
@@ -62,6 +67,7 @@ export class AuthService {
     localStorage.setItem('user', JSON.stringify(user));
     this.authToken = token;
     this.user = user
+    this.isLoginSubject.next(true);
   }
 
   getProfile(){
@@ -70,7 +76,22 @@ export class AuthService {
   }
 
   loggedIn() {
-  return tokenNotExpired();
+    let value = false
+    if (localStorage.getItem('token') !==''){
+    value = tokenNotExpired();
+    }
+    return value;
+  }
+
+  isLoggedIn() : Observable<boolean> {
+  return this.isLoginSubject.asObservable().share();
+  }
+
+  loggedIntokenNotExpired() {
+    if (this.loggedIn() == false ){
+    this.isLoginSubject.next(false);
+    }
+    return this.loggedIn();
   }
 
 }

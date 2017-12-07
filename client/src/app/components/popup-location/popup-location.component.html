@@ -1,3 +1,59 @@
-<p>
-  popup-location works!
-</p>
+
+<div class="popup-location-container"  >
+	<div *ngIf="!location">
+ 		<app-progressbar></app-progressbar>
+ 	</div>
+  <div *ngIf="location">
+	<h2 mat-dialog-title>{{location.title}}</h2>
+	<mat-dialog-actions>
+		<div class="closePanel">
+			<button type="button" name="button" mat-button class="btn btn-sm btn-info text closePanel" [mat-dialog-close]="true">Close</button>
+			<button type="button" name="button" mat-button class="btn btn-sm btn-info icon closePanel" [mat-dialog-close]="true">Close</button>
+		</div>
+	</mat-dialog-actions>
+	<mat-dialog-content>
+		<div class="image-grid-card-expand" >
+				<div  class="image-grid-card-pic-sqaure">
+					<img id="location-picture" [src]="location.src" (load)="resetMap()">
+				</div>
+			<div class="image-grid-card-map-sqaure" *ngIf="location.src">
+					<div *ngIf="location.lat && location.lng" >
+						<agm-map   id="location-map" [style.height.px]="mapHeight" [latitude]="location.lat" [longitude]="location.lng" [disableDefaultUI]="true" [zoomControl]="false" [mapDraggable]="false" [streetViewControl]="false" [scrollwheel]="false">
+						<agm-marker [latitude]="location.lat" [longitude]="location.lng"></agm-marker>
+						</agm-map>
+					</div>
+			</div>
+			<div style="clear: both;"></div>
+			<div class="bodyPanel">
+						<p>{{location.body}}<p>
+			</div>
+			<div>
+						<div *ngIf="location.tags.length" class="tagsPanel">
+							<button *ngFor="let tag of location.tags" type="button" name="button" class="btn btn-sm btn-info" (click)="onTagClick(tag)">{{tag}}</button>
+						</div>
+						<div *ngIf="!location.tags.length" class="tagsPanel">
+							<button disabled="true" type="button" name="button" class="btn btn-sm btn-info">No tags</button>
+						</div>
+			</div>
+		</div>
+	</mat-dialog-content>
+	<mat-dialog-actions *ngIf="location.createdBy !== username" >
+					<div class="namePanel">
+						<button type="button" name="button" class="btn btn-sm btn-info text"><img src="../../../assets/Person.png" alt="" />{{location.createdBy}}</button>
+						<button type="button" name="button" class="btn btn-sm btn-info icon"><img src="../../../assets/Person.png" alt="" />{{location.createdBy}}</button>
+					</div>
+	</mat-dialog-actions>
+	<mat-dialog-actions *ngIf="username === location.createdBy">
+					<div class="buttonsPanel">
+						<a  [routerLink]="['/edit-location/', location._id]" *ngIf="username === location.createdBy">
+							<button type="button" name="button" class="btn btn-sm btn-info text" [mat-dialog-close]="true"><img src="../../../assets/Edit.png" alt="" />Edit</button>
+							<button type="button" name="button" class="btn btn-sm btn-info icon" [mat-dialog-close]="true"><img src="../../../assets/Edit.png" alt="" /></button>
+						</a>
+						<a [routerLink]="['/delete-location/', location._id]" *ngIf="username === location.createdBy">
+							<button type="button" name="button" class="btn btn-sm btn-danger text" [mat-dialog-close]="true"><img src="../../../assets/Delete.png" alt="" />Delete</button>
+							<button type="button" name="button" class="btn btn-sm btn-danger icon" [mat-dialog-close]="true"><img src="../../../assets/Delete.png" alt="" /></button>
+						</a>
+					</div> 
+	</mat-dialog-actions>
+	</div>
+</div>

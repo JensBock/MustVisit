@@ -61,7 +61,7 @@ module.exports = (router) => {
 		if(!req.params.email) {
 			res.json({success: false, message: 'E-mail was not provided'})
 		} else {
-			User.findOne({email: req.params.email}, (err, user) => {
+			User.findOne({email: req.params.email.toLowerCase()}, (err, user) => {
 				if (err) {
 					res.json({success: false, message: err})
 				} else {
@@ -79,7 +79,7 @@ module.exports = (router) => {
 		if(!req.params.username) {
 			res.json({success: false, message: 'Username was not provided'})
 		} else {
-			User.findOne({username: req.params.username}, (err, user) => {
+			User.findOne({username: req.params.username.toLowerCase()}, (err, user) => {
 				if (err) {
 					res.json({success: false, message: err})
 				} else {

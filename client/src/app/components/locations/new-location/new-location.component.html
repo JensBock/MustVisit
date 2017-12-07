@@ -1,36 +1,25 @@
-<h1 class="page-header"></h1>
-<div class="row show-hide-message" *ngIf="message">
-	<div [ngClass]="messageClass">
-		{{message}}
-	</div>
-</div>
-
-<form [formGroup]="form" name="locationForm" (submit)="onLocationSubmit()">
-
-	<h3>Tabs</h3>
+<form [formGroup]="form"  name="locationForm" (submit)="onLocationSubmit()">
+	<h3>
+		Add a new location
+	</h3>
 	  <ul class="nav nav-tabs left">
-	    <li><button [disabled]="processing" [ngClass]="{'isActive': dataActive, 'inActive': !(dataActive)}" type="button" name="button" (click)="setDataTab()" class="btn btn-success">Data</button></li>
-	    <li><button [disabled]="processing" [ngClass]="{'isActive': pictureActive, 'inActive': !(pictureActive)}"  type="button" name="button" (click)="setPictureTab()" class="btn btn-success">Picture</button></li>
-	    <li><button [disabled]="processing" [ngClass]="{'isActive': mapActive, 'inActive': !(mapActive)}"  type="button" name="button" (click)="setMapTab()" class="btn btn-success">Map</button></li>
+	    <li><button [disabled]="processing" [ngClass]="{'isActive': dataActive, 'inActive': !(dataActive)}" type="button" name="button" (click)="setDataTab()" class="myButton buttonHover">Data</button></li>
+	    <li><button [disabled]="processing" [ngClass]="{'isActive': pictureActive, 'inActive': !(pictureActive)}"  type="button" name="button" (click)="setPictureTab()" class="myButton buttonHover">Picture</button></li>
+	    <li><button [disabled]="processing" [ngClass]="{'isActive': mapActive, 'inActive': !(mapActive)}"  type="button" name="button" (click)="setMapTab()" class="myButton buttonHover">Map</button></li>
 	</ul>
 	 <ul class="nav nav-tabs right">
-	  	<li class="right"><button  [disabled]="processing" type="button" name="button" (click)="goBack()" class="btn btn-warning float-right">Go Back</button></li>
-		<li class="right"><button id="navButtons" [disabled]="processing || !form.controls.body.valid || !form.controls.title.valid || !pictureIsValid " type="submit" name="button" class="btn btn-success float-right">Submit</button></li>
+	  	<li class="right"><button  [disabled]="processing" type="button" name="button" (click)="goBack()" class="myButton buttonHover float-right">Go Back</button></li>
+		<li class="right"><button id="navButtons" [disabled]="processing || !form.controls.body.valid || !form.controls.title.valid || !pictureIsValid " type="submit" name="button" class="myButton buttonHover float-right">Submit</button></li>
 	 </ul>
 	 <div style="clear: both;"></div>
 
 		<div *ngIf="dataActive" >
-			<div>
-				<h3>
-					Add a new location data
-				</h3>
-			</div>
 
 			<div class="form-group">
 				<label for="title">Title</label>
 				<div [ngClass]="{'has-success': form.controls.title.valid, 'has-error': form.controls.title.dirty && form.controls.title.errors}">
 					<input type="text" name="title" class="form-control" placeholder="Location title" autocomplete="off" formControlName="title"/>
-					<ul class="help-block">
+					<ul class="warnings">
 						<li *ngIf="form.controls.title.dirty && form.controls.title.errors?.required">This field is required.</li>
 						<li *ngIf="(form.controls.title.dirty && form.controls.title.errors?.maxlength) || (form.controls.title.dirty && form.controls.title.errors?.minlength)">Max length: 50, min length: 5</li>
 						<li *ngIf="form.controls.title.dirty && form.controls.title.errors?.alphaNumericValidation">Must be letter or number</li>
@@ -42,7 +31,7 @@
 				<label for="body">Body</label>
 				<div [ngClass]="{'has-success': form.controls.body.valid, 'has-error': form.controls.body.dirty && form.controls.body.errors}">
 					<textarea name="body" rows="8" cols="80" class="form-control" placeholder="Location body" autocomplete="off" formControlName="body"></textarea>
-					<ul class="help-block">
+					<ul class="warnings">
 						<li *ngIf="form.controls.body.dirty && form.controls.body.errors?.required">This field is required.</li>
 						<li *ngIf="(form.controls.body.dirty && form.controls.body.errors?.maxlength) || (form.controls.body.dirty && form.controls.body.errors?.minlength)">Max length: 500, min length: 5</li>
 					</ul>
@@ -51,12 +40,13 @@
 
 			<div class="form-group">
 				<label for="tag">Tags</label>
-				<div class="tagsNew"><button *ngFor="let tag of tags" type="button" name="button" class="btn btn-sm btn-info">{{tag}}</button></div>
+				<div  *ngIf="tags.length >0" class="tagsNew"><button *ngFor="let tag of tags" type="button" name="button" class="btn btn-sm btn-info" (click)="removeTag(tag)">{{tag}}</button></div>
 				<input type="text" name="tag" class="form-control" placeholder="Location tags" autocomplete="off" formControlName="tag"/>
-				<ul class="help-block">
+				<ul class="warnings">
 						<li *ngIf="(form.controls.tag.dirty && form.controls.tag.errors?.maxlength) || (form.controls.tag.dirty && form.controls.tag.errors?.minlength)">Max length: 15, min length: 3</li>
+						<li *ngIf="form.controls.tag.dirty && form.controls.tag.errors?.checkTagIsInArrayValidation">Tag is already in tags</li>
 				</ul>
-				<button [disabled]="processing || !form.controls.tag.valid || !form.controls.tag.dirty" type="button" name="button" class="btn btn-success" (click)="addTag(this)">AddTag</button>
+				<button [disabled]="processing || !form.controls.tag.valid || !form.controls.tag.dirty" type="button" name="button" class="myButton buttonHover" (click)="addTag()">AddTag</button>
 			</div>
 
 	</div>
@@ -65,7 +55,7 @@
 		<div class="form-group">
 			<label for="picture">picture</label>
 			<input type="file" name="picture" class="form-control" placeholder="Location pictures" autocomplete="off" (change)="fileChange($event)"/>
-			<img class="picture" [src]="pictureSrc">
+			<img *ngIf="pictureSrc" class="picture" [src]="pictureSrc">
 		</div>
 	</div>
 
@@ -78,6 +68,6 @@
 		<agm-map [latitude]="lat" [longitude]="lng" [disableDefaultUI]="true" [zoomControl]="false" [streetViewControl]="false" (mapClick)="mapClicked($event)" >
 		  	<agm-marker [latitude]="lat" [longitude]="lng"></agm-marker>
 		</agm-map>
-		<button [disabled]="processing" type="button" name="button" (click)="addLocation()" class="btn btn-success">Physical location</button>
+		<button [disabled]="processing" type="button" name="button" (click)="addLocation()" class="myButton buttonHover">Physical location</button>
 	</div>
 </form>

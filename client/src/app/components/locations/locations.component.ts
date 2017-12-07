@@ -1,22 +1,27 @@
-import { Component, OnInit } from '@angular/core';
-import { FormControl, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { MessageSnackbarService } from '../../services/message-snackbar.service';
 import { LocationService } from '../../services/location.service';
-import { DomSanitizer } from '@angular/platform-browser';
+import { Picturebase64Service } from '../../services/picturebase64.service';
+import { MatDialog, MatDialogRef } from '@angular/material';
+import { PopupLocationComponent } from '../popup-location/popup-location.component';
+import { ProgressbarService } from '../../services/progressbar.service';
+import { MessageSnackbarComponent } from '../message-snackbar/message-snackbar.component';
 
 @Component({
   selector: 'app-locations',
   templateUrl: './locations.component.html',
-  styleUrls: ['./locations.component.css']
+  styleUrls: ['./locations.component.css'],
 })
-export class LocationsComponent implements OnInit {
+export class LocationsComponent implements OnInit, OnDestroy {
+
+  popupLocationDialogRef: MatDialogRef<PopupLocationComponent>;
 
   username;
   locations;
-  currentId;
+  subscription;
 
-  messageClass;
-  message;
   processing = false;
 
   form;
@@ -26,65 +31,32 @@ export class LocationsComponent implements OnInit {
   searchTags = [];
 
   constructor(
-    private formBuilder: FormBuilder,
     private authService: AuthService,
+    private messageSnackbarService: MessageSnackbarService,
+    private router: Router,
     private locationService: LocationService,
-    private _DomSanitizationService: DomSanitizer
+    private picturebase64Service: Picturebase64Service,
+    private progressbarService: ProgressbarService,
+    private dialog: MatDialog
   ) { 
-    this.createNewTagForm();
   }
 
-
-  createNewTagForm(){
-    this.form = this.formBuilder.group({
-      tag: ['',Validators.compose([
-        Validators.required,
-        Validators.maxLength(15),
-        Validators.minLength(3),
-      ])]
-    })
-  }
-
-  onTagSubmit() {
-
-  }
-
-  getImageArrayBufferToBase64(pictureSrcString){
-  return this._DomSanitizationService.bypassSecurityTrustUrl("data:image/jpg;base64," + String(this.arrayBufferToBase64(pictureSrcString)));
-  }
-
-  arrayBufferToBase64( buffer ) {
-    var binary = '';
-    var bytes = new Uint8Array( buffer );
-    var len = bytes.byteLength;
-    for (var i = 0; i < len; i++) {
-      binary += String.fromCharCode( bytes[ i ] );
-    }
-    return window.btoa( binary );
+  openDialog(id) {
+    this.popupLocationDialogRef = this.dialog.open(PopupLocationComponent , {
+      hasBackdrop: true,
+      maxHeight:"95vh",
+      data: {
+        id: id
+      }
+    });
   }
 
   onClick(event,id){
-    if(this.currentId == id){
-      this.currentId = null;
-    } else {
-      this.currentId = id;
-      setTimeout(() =>{
-      let el = document.getElementById(id);
-      let ell = <HTMLElement> el.children[0];
-      this.mapHeight = ell.offsetHeight;
-      el.scrollIntoView({behavior: "smooth"});
-      },100)
-    }
-  
+   this.openDialog(id);
   }
 
-  addTag(){
-    this.searchTags.push(this.form.get('tag').value);
-    this.form.get('tag').setValue('');
-  }
-
-  onTagClick(value){
-  this.searchTags.push(value);
+  receiveTags($event){
+    this.searchTags = $event;
   }
 
 
@@ -98,15 +70,41 @@ export class LocationsComponent implements OnInit {
     this.locationService.getAllLocationsAndPicture().subscribe(data => {
       this.locations = data.locations;
       for (let int in this.locations){
-        this.locations[int].src = this.getImageArrayBufferToBase64(this.locations[int].picture.img.data);
+        this.locations[int].src = this.picturebase64Service.getImageArrayBufferToBase64(this.locations[int].picture.img.data);
+        this.progressbarService.disable()
       }
     });
   }
 
+ observeToken(){
+  if (this.authService !== undefined){
+      this.subscription = this.authService.isLoggedIn().subscribe (authData => {
+        if (authData == false){
+          this.subscription.unsubscribe();
+          this.messageSnackbarService.open({ data: 'Token expired', duration: 6000});
+        }
+      })
+    }
+  }
+
   ngOnInit() {
-    this.authService.getProfile().subscribe( profile => {
-      this.username = profile.user.username;
+    this.progressbarService.enable()
+    this.subscription = this.authService.getProfile().subscribe( profile => {
+      if (!profile.success){
+        this.messageSnackbarService.open({ data: profile.message, duration: 6000});
+        setTimeout(() => {
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        }, 2000)
+      } else {
+        this.username = profile.user.username;
+        this.getAllLocationsAndPictures();
+        this.observeToken();
+      }
     });
-    this.getAllLocationsAndPictures();
+    }
+
+    ngOnDestroy() {
+      this.subscription.unsubscribe();
     }
 }

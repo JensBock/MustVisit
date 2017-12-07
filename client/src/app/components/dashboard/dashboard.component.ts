@@ -1,40 +1,34 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit , OnDestroy, AfterViewInit, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
+
 import { AuthService } from '../../services/auth.service';
 import { LocationService } from '../../services/location.service';
-import { MapsAPILoader } from '@agm/core';
-import { } from '@types/googlemaps'
+import { ProgressbarService } from '../../services/progressbar.service';
+import { MessageSnackbarService } from '../../services/message-snackbar.service';
+
+import { GmapComponent } from '../gmap/gmap.component';
+
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit , OnDestroy {
 
+  @ViewChild(GmapComponent)
+  private gmapComponent: GmapComponent;
+
+  subscription;
   locations;
-  disableDefaultUI;
-  zoomControl;
-  streetViewControl;
-  zoom: number = 10;
-  loc;
-  bounds;
-  loaded = false;
-  username;
-  labelOptions = {
-  color: '#CC0000'
-  }
-  labelOptionsWithText = {
-  color: '#CC0000',
-  fontFamily: '',
-  fontSize: '14px',
-  fontWeight: 'bold',
-  text: 'Some Text',
-  }
+  user;
 
   constructor(
+    private router: Router,
     private authService: AuthService,
     private locationService: LocationService,
-    private mapsAPILoader: MapsAPILoader
+    private progressbarService: ProgressbarService,
+    private messageSnackbarService: MessageSnackbarService
     ) 
 
     { 
@@ -44,36 +38,46 @@ export class DashboardComponent implements OnInit {
   getAllLocations(){
     this.locationService.getAllLocations().subscribe(data => {
       this.locations = data.locations;
-      this.loaded = true;
-      this.setMapLoad();
+      this.gmapComponent.setMapLoad(this.locations, this.user.username);
   });
   }
 
-  setMapLoad(){
-    this.mapsAPILoader.load().then(
-    () => {
-      if (this.locations){
-        this.bounds = new google.maps.LatLngBounds();
-        for (let location of this.locations) {
-          if (location.lat,location.lng){
-            this.loc = new google.maps.LatLng(location.lat, location.lng);
-            this.bounds.extend(this.loc);
-          }
-        }
+  ngAfterViewInit() {
+    this.progressbarService.enable()
+    this.subscription = this.authService.getProfile().subscribe( profile => {
+      if (!profile.success){
+        this.messageSnackbarService.open({ data: profile.message, duration: 6000});
+        setTimeout(() => {
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        }, 2000)
+      } else {
+        this.user = profile.user
+        this.getAllLocations();
+        this.observeToken();
       }
-    }
-  )
+    });
   }
 
-  mapClicked($event){
-  console.log("test")
+ observeToken(){
+  if (this.authService !== undefined){
+      this.subscription = this.authService.isLoggedIn().subscribe (authData => {
+        if (authData == false){
+          this.subscription.unsubscribe();
+          this.messageSnackbarService.open({ data: 'Token expired', duration: 6000});
+        }
+      })
+    }
   }
 
   ngOnInit() {
-    this.authService.getProfile().subscribe( profile => {
-      this.username = profile.user.username;
-    });
-    this.getAllLocations();
+
+    
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+    this.progressbarService.disable();
   }
 
 }

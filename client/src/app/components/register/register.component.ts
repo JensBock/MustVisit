@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { ValidateService } from '../../services/validate.service';
+import { MessageSnackbarService } from '../../services/message-snackbar.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -11,8 +13,6 @@ import { Router } from '@angular/router';
 export class RegisterComponent implements OnInit {
 
   form;
-  message;
-  messageClass;
   processing = false;
   emailValid;
   emailMessage;
@@ -22,7 +22,8 @@ export class RegisterComponent implements OnInit {
   constructor(
   private formBuilder: FormBuilder,
   private authService: AuthService,
-  private router: Router,
+  private messageSnackbarService: MessageSnackbarService,
+  private router: Router
   ) { 
 	this.createForm()
   }
@@ -33,22 +34,22 @@ export class RegisterComponent implements OnInit {
       Validators.required,
       Validators.minLength(5),
       Validators.maxLength(30),
-      this.validateEmail
+      ValidateService.validateEmail
       ])],
     username: ['',Validators.compose([
       Validators.required,
       Validators.minLength(3),
       Validators.maxLength(15),
-      this.validateUsername
+      ValidateService.validateUsername
       ])],
     password: ['',Validators.compose([
       Validators.required,
       Validators.minLength(8),
       Validators.maxLength(35),
-      this.validatePassword
+      ValidateService.validatePassword
     ])],
     confirm: ['',Validators.required]
-    }, {validator: this.matchingPasswords('password','confirm')});
+    }, {validator: ValidateService.matchingPasswords('password','confirm')});
   }
 
   disableForm() {
@@ -66,54 +67,6 @@ export class RegisterComponent implements OnInit {
     this.form.controls['confirm'].enable();
   }
 
-  // Function to validate e-mail is proper format
-  validateEmail(controls) {
-    // Create a regular expression
-    const regExp = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
-    // Test email against regular expression
-    if (regExp.test(controls.value)) {
-      return null; // Return as valid email
-    } else {
-      return { 'validateEmail': true } // Return as invalid email
-    }
-  }
-
-  // Function to validate username is proper format
-  validateUsername(controls) {
-    // Create a regular expression
-    const regExp = new RegExp(/^[a-zA-Z0-9]+$/);
-    // Test username against regular expression
-    if (regExp.test(controls.value)) {
-      return null; // Return as valid username
-    } else {
-      return { 'validateUsername': true } // Return as invalid username
-    }
-  }
-
-  // Function to validate password
-  validatePassword(controls) {
-    // Create a regular expression
-    const regExp = new RegExp(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/);
-    // Test password against regular expression
-    if (regExp.test(controls.value)) {
-      return null; // Return as valid password
-    } else {
-      return { 'validatePassword': true } // Return as invalid password
-    }
-  }
-
-  // Function to ensure passwords match
-  matchingPasswords(password, confirm) {
-    return (group: FormGroup) => {
-      // Check if both fields are the same
-      if (group.controls[password].value === group.controls[confirm].value) {
-        return null; // Return as a match
-      } else {
-        return { 'matchingPasswords': true } // Return as error: do not match
-      }
-    }
-  }
-
   onRegisterSubmit(){
     this.processing = true;
     this.disableForm();
@@ -124,14 +77,12 @@ export class RegisterComponent implements OnInit {
     }
     this.authService.registerUser(user).subscribe(data => {
       if (!data.success){
-        this.messageClass = 'alert alert-danger';
-        this.message = data.message;
+        this.messageSnackbarService.open({ data: data.message, duration: 6000});
         this.processing = false;
         this.enableForm();
       } else {
         this.disableForm();
-        this.messageClass = 'alert alert-success';
-        this.message = data.message;
+        this.messageSnackbarService.open({ data: data.message, duration: 6000});
         setTimeout(() => {
             this.router.navigate(['/dashboard']);
         }, 2000)

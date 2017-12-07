@@ -1,8 +1,4 @@
-<h1 class="page-header">
-  dashboard route!
-</h1>
+<br>
 <div id="mapContainer">
-<agm-map [zoom]="zoom" [disableDefaultUI]="true"  [streetViewControl]="false" [fitBounds]="bounds"  (mapClick)="mapClicked($event)">
-  <agm-marker *ngFor="let location of locations" [latitude]="location.lat" [longitude]="location.lng" [label]="labelOptions"></agm-marker>
-</agm-map>
+<app-gmap></app-gmap>
 </div>
