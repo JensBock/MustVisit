@@ -19,7 +19,6 @@ export class GmapComponent implements OnInit {
   popupLocationDialogRef: MatDialogRef<PopupLocationComponent>;
 
   locations;
-  zoom: number = 10;
   bounds;
   searchTags = [];
 

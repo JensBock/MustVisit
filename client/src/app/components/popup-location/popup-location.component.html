@@ -29,7 +29,7 @@
 			</div>
 			<div>
 						<div *ngIf="location.tags.length" class="tagsPanel">
-							<button *ngFor="let tag of location.tags" type="button" name="button" class="btn btn-sm btn-info" (click)="onTagClick(tag)">{{tag}}</button>
+							<button *ngFor="let tag of location.tags" type="button" name="button" class="btn btn-sm btn-info">{{tag}}</button>
 						</div>
 						<div *ngIf="!location.tags.length" class="tagsPanel">
 							<button disabled="true" type="button" name="button" class="btn btn-sm btn-info">No tags</button>

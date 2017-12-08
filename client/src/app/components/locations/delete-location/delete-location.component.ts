@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
 import { LocationService } from '../../../services/location.service';
+import { ProgressbarService } from '../../../services/progressbar.service';
 import { MessageSnackbarService } from '../../../services/message-snackbar.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -22,6 +23,7 @@ export class DeleteLocationComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private locationService: LocationService,
+    private progressbarService: ProgressbarService,
     private messageSnackbarService: MessageSnackbarService
 
   ) { }
@@ -33,7 +35,6 @@ export class DeleteLocationComponent implements OnInit, OnDestroy {
       if (!data.success) {
         this.messageSnackbarService.open({ data: data.message, duration: 6000});
       } else {
-        this.messageSnackbarService.open({ data: data.message, duration: 6000});
         this.removePicture(this.location.picture._id)
         setTimeout(() => {
           this.router.navigate(['/locations']);
@@ -64,17 +65,39 @@ export class DeleteLocationComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.currentUrl = this.activatedRoute.snapshot.params;
-    this.locationService.getSingleLocation(this.currentUrl.id).subscribe(data => {
-      if (!data.success) {
-        this.messageSnackbarService.open({ data: data.message, duration: 6000});
-         setTimeout(() => {
-          this.router.navigate(['/locations']);
-        }, 1000);
+    this.progressbarService.enable();
+    this.subscription = this.authService.getProfile().subscribe( profile => {
+      if (!profile.success){
+        this.messageSnackbarService.open({ data: profile.message, duration: 6000});
+        setTimeout(() => {
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        }, 2000)
       } else {
-        this.location = data.location[0];
-        this.foundLocation = true;
-        this.observeToken();
+          this.currentUrl = this.activatedRoute.snapshot.params;
+          this.locationService.getSingleLocation(this.currentUrl.id).subscribe(data => {
+          if (!data.success) {
+            this.messageSnackbarService.open({ data: data.message, duration: 6000});
+            this.router.navigate(['/locations']);
+            this.progressbarService.disable();
+          } else {
+            if (profile.user.username && data.location[0].createdBy){
+               if (profile.user.username === data.location[0].createdBy){
+                  this.location = data.location[0];
+                  this.foundLocation = true;
+                  this.progressbarService.disable();
+                  this.observeToken();
+                } else {
+                  this.messageSnackbarService.open({ data: 'You can not edit this location', duration: 6000});
+                  this.router.navigate(['/locations']);
+                }
+            } else {
+              this.messageSnackbarService.open({ data: 'You can not edit this location', duration: 6000});
+              this.router.navigate(['/locations']);
+              this.progressbarService.disable();
+            }
+          } 
+        });
       }
     });
   }

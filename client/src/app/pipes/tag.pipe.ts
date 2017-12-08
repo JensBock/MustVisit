@@ -14,7 +14,7 @@ export class TagPipe implements PipeTransform {
     	});
     	let containsAll = 0;
 	  	for (let tag of args) {
-  			 if (tagsLowerCase.includes(tag.name.toLowerCase())){
+  			 if (tagsLowerCase.findIndex( v => v.indexOf(tag.name.toLowerCase()) > -1) > -1 ) {
   			 	containsAll +=1
   			 }
 		}

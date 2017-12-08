@@ -235,7 +235,6 @@ module.exports = (router) => {
 			res.json({ success: false, message: 'No location id was provided.'});
 		} else {
 			Location.find({_id:req.params.id}, (err,location) => {
-				console.log(location.length);
 				if (err) {
 					res.json({ success: false, message: 'Not a valid location id'});
 				} else {

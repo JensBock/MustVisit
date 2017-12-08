@@ -78,7 +78,7 @@ import { TagPipe } from './pipes/tag.pipe';
     BrowserAnimationsModule,
     MatChipsModule,
     MatFormFieldModule,
-    MatIconModule
+    MatIconModule,
     AgmCoreModule.forRoot({
       apiKey: env.GOOGLE_API_KEY
     })

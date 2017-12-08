@@ -279,26 +279,49 @@ export class EditLocationComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.progressbarService.enable();
-    this.activatedRoute.params
-    .switchMap((params) => this.locationService.getSingleLocation(params['id']))
-    .subscribe(data => {
-        if (!data.success){
-          this.messageSnackbarService.open({ data: 'Location not found', duration: 6000});
-          this.progressbarService.disable();
-        } else {
-        this.location = data.location[0];
-        this.createEditLocationForm();
-        this.form.controls['title'].setValue(this.location.title);
-        this.form.controls['body'].setValue(this.location.body);
-        this.pictureSrc = this.picturebase64Service.getImageArrayBufferToBase64(this.location.picture.img.data);
-        this.originalPictureId = this.location.picture._id
-        this.loading = false;
-        this.observeToken();
-        this.progressbarService.disable();
-        }
-      });
-    }
+  this.progressbarService.enable();
+    this.subscription = this.authService.getProfile().subscribe( profile => {
+      if (!profile.success){
+        this.messageSnackbarService.open({ data: profile.message, duration: 6000});
+        setTimeout(() => {
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        }, 2000)
+      } else {
+        this.activatedRoute.params
+        .switchMap((params) => this.locationService.getSingleLocation(params['id']))
+        .subscribe(data => {
+          if (!data.success){
+            this.messageSnackbarService.open({ data: data.message, duration: 6000});
+             setTimeout(() => {
+              this.router.navigate(['/locations']);
+            }, 1000);
+            this.progressbarService.disable();
+          } else {
+            if (profile.user.username && data.location[0].createdBy){
+               if (profile.user.username === data.location[0].createdBy){
+                  this.location = data.location[0];
+                  this.createEditLocationForm();
+                  this.form.controls['title'].setValue(this.location.title);
+                  this.form.controls['body'].setValue(this.location.body);
+                  this.pictureSrc = this.picturebase64Service.getImageArrayBufferToBase64(this.location.picture.img.data);
+                  this.originalPictureId = this.location.picture._id
+                  this.loading = false;
+                  this.progressbarService.disable();
+                  this.observeToken();
+                } else {
+                  this.messageSnackbarService.open({ data: 'You can not edit this location', duration: 6000});
+                  this.router.navigate(['/locations']);
+                }
+            } else {
+              this.messageSnackbarService.open({ data: 'You can not edit this location', duration: 6000});
+              this.router.navigate(['/locations']);
+            }
+          } 
+        });
+      }
+    });
+  }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();

@@ -14,7 +14,7 @@ export class TagSearchBarComponent {
   removable: boolean = true;
   addOnBlur: boolean = true;
 
-  @Output() tagEvent = new EventEmitter<array>();
+  @Output() tagEvent = new EventEmitter<Array<string>>();
 
   // Enter, comma
   separatorKeysCodes = [ENTER, COMMA];

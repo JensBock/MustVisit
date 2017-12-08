@@ -12,7 +12,7 @@ export class NavbarComponent {
 
   constructor(
   	public authService: AuthService,
-  	public router: Router,
+  	private router: Router,
     private messageSnackbarService: MessageSnackbarService
   ) { }
 

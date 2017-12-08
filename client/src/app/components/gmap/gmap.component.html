@@ -1,4 +1,4 @@
 <app-tag-search-bar (tagEvent)="receiveTags($event)"></app-tag-search-bar>
-<agm-map [zoom]="zoom" [disableDefaultUI]="true"  [streetViewControl]="false" [fitBounds]="bounds">
+<agm-map [disableDefaultUI]="true"  [streetViewControl]="false" [fitBounds]="bounds">
   <agm-marker *ngFor="let location of locations| tag:searchTags " [latitude]="location.lat" [longitude]="location.lng" [iconUrl]="location.iconUrl" (markerClick)="markerClick(location._id)" ></agm-marker>
 </agm-map>
